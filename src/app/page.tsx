@@ -10,6 +10,7 @@ import { SiteHeader } from "@/components/site-header";
 import { CreditCard, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { GrainGradient } from "@paper-design/shaders-react";
 
 
 export default function Home() {

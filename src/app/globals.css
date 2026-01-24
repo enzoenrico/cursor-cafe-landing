@@ -256,3 +256,8 @@
 .delay-800 {
 	animation-delay: 800ms;
 }
+
+
+.aspect-reels {
+	aspect-ratio: 9 / 16;
+}

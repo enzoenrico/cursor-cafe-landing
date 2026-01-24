@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
 
-import { PaperHalftone } from "@/components/paper-halftone";
 import { SiteHeader } from "@/components/site-header";
+import { BadgeCard } from "@/components/badge-card";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -14,13 +13,19 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { GrainGradient } from "@paper-design/shaders-react";
+import { GrainGradient, LiquidMetal } from "@paper-design/shaders-react";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function CreditosPage() {
 	const [email, setEmail] = useState("");
 	const [submitted, setSubmitted] = useState(false);
+	const [badgeBackground, setBadgeBackground] = useState<"abstract" | "liquid">(
+		"liquid"
+	);
+	const [viewport, setViewport] = useState<{ width: number; height: number } | null>(
+		null
+	);
 
 	const emailTrimmed = email.trim();
 	const isEmailValid = useMemo(
@@ -28,42 +33,55 @@ export default function CreditosPage() {
 		[emailTrimmed]
 	);
 
+	useEffect(() => {
+		const update = () =>
+			setViewport({ width: window.innerWidth, height: window.innerHeight });
+
+		update();
+		window.addEventListener("resize", update);
+		return () => window.removeEventListener("resize", update);
+	}, []);
+
 	const panelBase =
 		"overflow-hidden transition-[max-height,opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[opacity,transform]";
-	const panelShown = "max-h-[520px] opacity-100 translate-y-0 scale-100";
+	const panelShown = "opacity-100 translate-y-0 scale-100";
 	const panelHidden =
 		"max-h-0 opacity-0 -translate-y-2 scale-[0.985] pointer-events-none";
 
+	const swapBadgeBackground = () => {
+		setBadgeBackground((prev) => (prev === "liquid" ? "abstract" : "liquid"));
+	};
+
 	return (
-		<div className="relative h-screen overflow-y-hidden">
-			<GrainGradient
-				width={window.innerWidth}
-				height={window.innerHeight}
-				colors={["#7300ff", "#eba8ff", "#00bfff", "#2b00ff"]}
-				colorBack="#000000"
-				softness={0.8}
-				intensity={0.6}
-				noise={0.35}
-				shape="corners"
-				speed={0.5}
-				className="absolute inset-0 -z-10 overflow-hidden opacity-50"
-			/>
-
-
+		<div className="relative h-screen ">
+			{viewport ? (
+				<GrainGradient
+					width={viewport.width}
+					height={viewport.height}
+					colors={["#f2f1e8", "#222222"]}
+					colorBack="#000000"
+					softness={0.4}
+					intensity={0.5}
+					noise={0.75}
+					shape="corners"
+					speed={0.75}
+					className="absolute inset-0 -z-10 overflow-hidden opacity-50"
+				/>
+			) : null}
 
 			<main className="relative min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
 				<div className="w-full max-w-3xl mx-auto text-center">
 					<SiteHeader className="mb-6" />
 
 					<h1 className="animate-fade-up delay-100 text-4xl sm:text-6xl font-bold tracking-tight">
-						Créditos
+						Sua badge
 					</h1>
 
 					<p className="animate-fade-up delay-200 mt-4 text-base sm:text-lg text-muted-foreground">
-						Confirme seu e-mail para receber os créditos do evento.
+						Uma forma de sempre lembrar do Cursor Café Curitiba!
 					</p>
 
-					<div className="animate-scale-in delay-300 mt-10 mx-auto w-full max-w-lg text-left">
+					<div className="animate-scale-in delay-300 mt-10 mx-auto w-full max-w-lg text-left  rounded-4xl backdrop-blur-xl">
 						<div className="relative">
 							<div
 								data-state={submitted ? "hidden" : "shown"}
@@ -72,7 +90,7 @@ export default function CreditosPage() {
 									submitted ? panelHidden : panelShown,
 								].join(" ")}
 							>
-								<Card className="border-border/50 bg-transparent">
+								<Card className="border-border/50 bg-transparent rounded-4xl ">
 									<CardHeader>
 										<CardTitle>Seu e-mail</CardTitle>
 										<CardDescription>
@@ -85,7 +103,6 @@ export default function CreditosPage() {
 											className="space-y-4"
 											onSubmit={(e) => {
 												e.preventDefault();
-												if (!isEmailValid) return;
 												setSubmitted(true);
 											}}
 										>
@@ -113,7 +130,6 @@ export default function CreditosPage() {
 												type="submit"
 												size="lg"
 												className="w-full"
-												disabled={!isEmailValid}
 											>
 												Confirmar email
 											</Button>
@@ -125,27 +141,19 @@ export default function CreditosPage() {
 							<div
 								data-state={submitted ? "shown" : "hidden"}
 								className={[
-									panelBase,
 									submitted ? panelShown : panelHidden,
+									"flex items-center justify-center",
 								].join(" ")}
 							>
-								<Card className="border-border/50 bg-transparent">
-									<CardHeader className="space-y-2">
-										<div className="flex items-center gap-2">
-											<CheckCircle2 className="size-5 text-primary" />
-											<CardTitle>Obrigado!</CardTitle>
-										</div>
-										<CardDescription>
-											Recebemos seu email. Em breve você receberá a confirmação.
-										</CardDescription>
-									</CardHeader>
-
-									<CardContent className="pt-0">
-										<Button asChild variant="secondary" className="w-full">
-											<Link href="/">Voltar para Home</Link>
-										</Button>
-									</CardContent>
-								</Card>
+								{createBadge({
+									background:
+										badgeBackground === "liquid" ? (
+											<LiquidMetalFill />
+										) : (
+											<AbstractBackground />
+										),
+									onSwapBackground: swapBadgeBackground,
+								})}
 							</div>
 						</div>
 					</div>
@@ -155,3 +163,151 @@ export default function CreditosPage() {
 	);
 }
 
+
+function createBadge({
+	background,
+	onSwapBackground,
+}: {
+	background: React.ReactNode;
+	onSwapBackground: () => void;
+}) {
+	return (
+		<BadgeCard
+			name="enzoenrico"
+			tags={["ALPHA USER", "#54801"]}
+			location="Curitiba, BR • UTC-3"
+			activatedAt="Jan 23, 2026 • 09:45"
+			background={background}
+			cta={
+				<Button
+					asChild
+					variant="secondary"
+					className="w-full"
+					onClick={(e) => {
+						e.preventDefault();
+						onSwapBackground();
+					}}
+				>
+					<Link href="/">Compartilhar!</Link>
+				</Button>
+			}
+		/>
+	);
+}
+
+function AbstractBackground() {
+	const wrapperRef = useRef<HTMLDivElement | null>(null);
+	const [size, setSize] = useState({ width: 0, height: 0 });
+
+	useEffect(() => {
+		const el = wrapperRef.current;
+		if (!el) return;
+
+		let raf = 0;
+		const measure = () => {
+			const rect = el.getBoundingClientRect();
+			const width = Math.max(0, Math.round(rect.width));
+			const height = Math.max(0, Math.round(rect.height));
+			setSize((prev) =>
+				prev.width === width && prev.height === height ? prev : { width, height }
+			);
+		};
+
+		measure();
+		const ro = new ResizeObserver(() => {
+			cancelAnimationFrame(raf);
+			raf = requestAnimationFrame(measure);
+		});
+		ro.observe(el);
+
+		return () => {
+			cancelAnimationFrame(raf);
+			ro.disconnect();
+		};
+	}, []);
+
+	return (
+		<div
+			ref={wrapperRef}
+			aria-hidden
+			className="absolute inset-0 h-full w-full pointer-events-none"
+		>
+			{size.width > 0 && size.height > 0 ? (
+				<GrainGradient
+					width={size.width}
+					height={size.height}
+					colors={["#ff14dc", "#69671c", "#69ff67"]}
+					colorBack="#000000"
+					softness={0.2}
+					intensity={0.75}
+					noise={0.5}
+					shape="corners"
+					speed={1}
+					className="absolute inset-0 overflow-hidden opacity-50"
+				/>
+			) : null}
+		</div>
+	);
+}
+
+function LiquidMetalFill() {
+	const wrapperRef = useRef<HTMLDivElement | null>(null);
+	const [size, setSize] = useState({ width: 0, height: 0 });
+
+	useEffect(() => {
+		const el = wrapperRef.current;
+		if (!el) return;
+
+		let raf = 0;
+		const measure = () => {
+			const rect = el.getBoundingClientRect();
+			const width = Math.max(0, Math.round(rect.width));
+			const height = Math.max(0, Math.round(rect.height));
+			setSize((prev) =>
+				prev.width === width && prev.height === height ? prev : { width, height }
+			);
+		};
+
+		measure();
+		const ro = new ResizeObserver(() => {
+			cancelAnimationFrame(raf);
+			raf = requestAnimationFrame(measure);
+		});
+		ro.observe(el);
+
+		return () => {
+			cancelAnimationFrame(raf);
+			ro.disconnect();
+		};
+	}, []);
+
+	return (
+		<div
+			ref={wrapperRef}
+			aria-hidden
+			className="absolute inset-0 h-full w-full pointer-events-none"
+		>
+			{size.width > 0 && size.height > 0 ? (
+				<LiquidMetal
+					width={size.width}
+					height={size.height}
+					image="/cursor.svg"
+					colorBack="#222222"
+					colorTint="#ffffff"
+					shape={"circle"}
+					repetition={4.16}
+					softness={0.92}
+					shiftRed={0.28}
+					shiftBlue={0.42}
+					distortion={0.6}
+					contour={0.7}
+					angle={142}
+					speed={0.44}
+					scale={0.5}
+					fit="cover"
+					className="h-full w-full"
+				/>
+			) : null}
+		</div>
+	);
+}
