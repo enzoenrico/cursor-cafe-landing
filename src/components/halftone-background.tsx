@@ -69,8 +69,6 @@ void main() {
   vec2 cell = floor(st / ds);
   vec2 cellCenter = (cell + 0.5) * ds;
   vec2 uvCell = cellCenter / u_resolution;
-  // Flip Y for image sampling so the texture isn't upside down.
-  uvCell.y = 1.0 - uvCell.y;
 
   vec3 tex = texture2D(u_tex, uvCell).rgb;
   float lum = luma(tex);
@@ -127,11 +125,6 @@ function clamp01(x: number) {
 	return Math.max(0, Math.min(1, x));
 }
 
-function vec3Uniform(gl: WebGLRenderingContext, loc: WebGLUniformLocation | null, v: Vec3) {
-	if (!loc) return;
-	gl.uniform3f(loc, clamp01(v[0]), clamp01(v[1]), clamp01(v[2]));
-}
-
 export function HalftoneBackground({
 	src,
 	alt = "",
@@ -139,8 +132,8 @@ export function HalftoneBackground({
 	className,
 	dotSize = 7,
 	intensity = 1,
-	ink = [0.86, 0.95, 0.98],
-	background = [0.03, 0.03, 0.035],
+	ink: _ink = [0.86, 0.95, 0.98],
+	background: _background = [0.03, 0.03, 0.035],
 	opacity = 0.55,
 }: HalftoneBackgroundProps) {
 	const wrapperRef = React.useRef<HTMLDivElement | null>(null);
@@ -150,6 +143,9 @@ export function HalftoneBackground({
 	const textureRef = React.useRef<WebGLTexture | null>(null);
 	const imgRef = React.useRef<HTMLImageElement | null>(null);
 	const [webglOk, setWebglOk] = React.useState(true);
+	// Reserved for future shader controls; keep in props without lint noise.
+	void _ink;
+	void _background;
 
 	const draw = React.useCallback(() => {
 		const canvas = canvasRef.current;
@@ -195,7 +191,7 @@ export function HalftoneBackground({
 		gl.clearColor(0, 0, 0, 0);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
-	}, [background, dotSize, ink, intensity, opacity]);
+	}, [dotSize, intensity, opacity]);
 
 	React.useEffect(() => {
 		const canvas = canvasRef.current;

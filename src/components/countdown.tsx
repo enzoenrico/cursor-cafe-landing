@@ -36,14 +36,19 @@ export function Countdown() {
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
-		setMounted(true);
-		setTimeLeft(calculateTimeLeft());
+		const raf = requestAnimationFrame(() => {
+			setMounted(true);
+			setTimeLeft(calculateTimeLeft());
+		});
 
 		const timer = setInterval(() => {
 			setTimeLeft(calculateTimeLeft());
 		}, 1000);
 
-		return () => clearInterval(timer);
+		return () => {
+			cancelAnimationFrame(raf);
+			clearInterval(timer);
+		};
 	}, []);
 
 	// Avoid hydration mismatch
