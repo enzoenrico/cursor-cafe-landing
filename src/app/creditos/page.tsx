@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import { SiteHeader } from "@/components/site-header";
@@ -13,19 +13,26 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { GrainGradient, LiquidMetal } from "@paper-design/shaders-react";
+import { GrainGradient } from "@paper-design/shaders-react";
+
+import {
+	type BadgeBackgroundId,
+	badgeBackgroundById,
+	getNextBadgeBackgroundId,
+} from "@/components/badge-backgrounds/registry";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function CreditosPage() {
 	const [email, setEmail] = useState("");
 	const [submitted, setSubmitted] = useState(false);
-	const [badgeBackground, setBadgeBackground] = useState<"abstract" | "liquid">(
-		"liquid"
-	);
-	const [viewport, setViewport] = useState<{ width: number; height: number } | null>(
-		null
-	);
+	const [badgeBackground, setBadgeBackground] =
+		useState<BadgeBackgroundId>("liquid");
+	const [backgroundKey, setBackgroundKey] = useState(0);
+	const [viewport, setViewport] = useState<{
+		width: number;
+		height: number;
+	} | null>(null);
 
 	const emailTrimmed = email.trim();
 	const isEmailValid = useMemo(
@@ -49,8 +56,11 @@ export default function CreditosPage() {
 		"max-h-0 opacity-0 -translate-y-2 scale-[0.985] pointer-events-none";
 
 	const swapBadgeBackground = () => {
-		setBadgeBackground((prev) => (prev === "liquid" ? "abstract" : "liquid"));
+		setBadgeBackground((prev) => getNextBadgeBackgroundId(prev));
+		setBackgroundKey((k) => k + 1);
 	};
+
+	const Background = badgeBackgroundById[badgeBackground];
 
 	return (
 		<div className="relative h-screen ">
@@ -103,6 +113,7 @@ export default function CreditosPage() {
 											className="space-y-4"
 											onSubmit={(e) => {
 												e.preventDefault();
+												//if (!isEmailValid) return;
 												setSubmitted(true);
 											}}
 										>
@@ -130,6 +141,7 @@ export default function CreditosPage() {
 												type="submit"
 												size="lg"
 												className="w-full"
+											//disabled={!isEmailValid}
 											>
 												Confirmar email
 											</Button>
@@ -146,12 +158,7 @@ export default function CreditosPage() {
 								].join(" ")}
 							>
 								{createBadge({
-									background:
-										badgeBackground === "liquid" ? (
-											<LiquidMetalFill />
-										) : (
-											<AbstractBackground />
-										),
+									background: <Background key={backgroundKey} />,
 									onSwapBackground: swapBadgeBackground,
 								})}
 							</div>
@@ -162,7 +169,6 @@ export default function CreditosPage() {
 		</div>
 	);
 }
-
 
 function createBadge({
 	background,
@@ -188,126 +194,9 @@ function createBadge({
 						onSwapBackground();
 					}}
 				>
-					<Link href="/">Compartilhar!</Link>
+					<Link href="/">Trocar estilo</Link>
 				</Button>
 			}
 		/>
-	);
-}
-
-function AbstractBackground() {
-	const wrapperRef = useRef<HTMLDivElement | null>(null);
-	const [size, setSize] = useState({ width: 0, height: 0 });
-
-	useEffect(() => {
-		const el = wrapperRef.current;
-		if (!el) return;
-
-		let raf = 0;
-		const measure = () => {
-			const rect = el.getBoundingClientRect();
-			const width = Math.max(0, Math.round(rect.width));
-			const height = Math.max(0, Math.round(rect.height));
-			setSize((prev) =>
-				prev.width === width && prev.height === height ? prev : { width, height }
-			);
-		};
-
-		measure();
-		const ro = new ResizeObserver(() => {
-			cancelAnimationFrame(raf);
-			raf = requestAnimationFrame(measure);
-		});
-		ro.observe(el);
-
-		return () => {
-			cancelAnimationFrame(raf);
-			ro.disconnect();
-		};
-	}, []);
-
-	return (
-		<div
-			ref={wrapperRef}
-			aria-hidden
-			className="absolute inset-0 h-full w-full pointer-events-none"
-		>
-			{size.width > 0 && size.height > 0 ? (
-				<GrainGradient
-					width={size.width}
-					height={size.height}
-					colors={["#ff14dc", "#69671c", "#69ff67"]}
-					colorBack="#000000"
-					softness={0.2}
-					intensity={0.75}
-					noise={0.5}
-					shape="corners"
-					speed={1}
-					className="absolute inset-0 overflow-hidden opacity-50"
-				/>
-			) : null}
-		</div>
-	);
-}
-
-function LiquidMetalFill() {
-	const wrapperRef = useRef<HTMLDivElement | null>(null);
-	const [size, setSize] = useState({ width: 0, height: 0 });
-
-	useEffect(() => {
-		const el = wrapperRef.current;
-		if (!el) return;
-
-		let raf = 0;
-		const measure = () => {
-			const rect = el.getBoundingClientRect();
-			const width = Math.max(0, Math.round(rect.width));
-			const height = Math.max(0, Math.round(rect.height));
-			setSize((prev) =>
-				prev.width === width && prev.height === height ? prev : { width, height }
-			);
-		};
-
-		measure();
-		const ro = new ResizeObserver(() => {
-			cancelAnimationFrame(raf);
-			raf = requestAnimationFrame(measure);
-		});
-		ro.observe(el);
-
-		return () => {
-			cancelAnimationFrame(raf);
-			ro.disconnect();
-		};
-	}, []);
-
-	return (
-		<div
-			ref={wrapperRef}
-			aria-hidden
-			className="absolute inset-0 h-full w-full pointer-events-none"
-		>
-			{size.width > 0 && size.height > 0 ? (
-				<LiquidMetal
-					width={size.width}
-					height={size.height}
-					image="/cursor.svg"
-					colorBack="#222222"
-					colorTint="#ffffff"
-					shape={"circle"}
-					repetition={4.16}
-					softness={0.92}
-					shiftRed={0.28}
-					shiftBlue={0.42}
-					distortion={0.6}
-					contour={0.7}
-					angle={142}
-					speed={0.44}
-					scale={0.5}
-					fit="cover"
-					className="h-full w-full"
-				/>
-			) : null}
-		</div>
 	);
 }
