@@ -1,5 +1,5 @@
 
-type AbstractShape = "blob" | "corners" | "sphere" | "ripple" | "dots" | "truchet" | "wave" | undefined
+export type AbstractShape = "blob" | "corners" | "sphere" | "ripple" | "dots" | "truchet" | "wave" | undefined
 
 export function getRandomColors(n: number): string[] {
 	const colors = [];

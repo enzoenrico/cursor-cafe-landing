@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 
 import { AbstractBadgeBackground } from "./backgrounds/AbstractBadgeBackground";
+import { DitheringBadgeBackground } from "./backgrounds/DitheringBadgeBackground";
 import { LiquidMetalBadgeBackground } from "./backgrounds/LiquidMetalBadgeBackground";
 import { MoltenBadgeBackground } from "./backgrounds/MoltenBadgeBackground";
 
@@ -12,6 +13,7 @@ export const BADGE_BACKGROUNDS = [
 	{ id: "liquid", Component: LiquidMetalBadgeBackground },
 	{ id: "abstract", Component: AbstractBadgeBackground },
 	{ id: "molten", Component: MoltenBadgeBackground },
+	{ id: "dithering", Component: DitheringBadgeBackground },
 ] as const;
 
 /**
