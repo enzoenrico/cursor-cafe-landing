@@ -15,21 +15,21 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "Cursor Café — Curitiba, Jan 30 2026",
 	description:
-		"Join us at Cursor Café in Curitiba, Paraná! A community meetup for Cursor enthusiasts at Manana Café Bigorrilho.",
+		"Join us at Cafe Cursor in Curitiba, Paraná! A community meetup for Cursor enthusiasts at Manana Café Bigorrilho.",
 	icons: {
 		icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
 	},
 	openGraph: {
 		title: "Cursor Café — Curitiba, Jan 30 2026",
 		description:
-			"Join us at Cursor Café in Curitiba, Paraná! A community meetup for Cursor enthusiasts at Manana Café Bigorrilho.",
+			"Join us at Cafe Cursor in Curitiba, Paraná! A community meetup for Cursor enthusiasts at Manana Café Bigorrilho.",
 		type: "website",
 	},
 	twitter: {
 		card: "summary_large_image",
 		title: "Cursor Café — Curitiba, Jan 30 2026",
 		description:
-			"Join us at Cursor Café in Curitiba, Paraná! A community meetup for Cursor enthusiasts.",
+			"Join us at Cafe Cursor in Curitiba, Paraná! A community meetup for Cursor enthusiasts.",
 	},
 };
 
