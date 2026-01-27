@@ -29,8 +29,8 @@ export default function Home() {
 
 					{/* Title */}
 					<h1 className="animate-fade-up delay-100 text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight">
+						<span className="text-primary">Cafe </span>
 						<span className="text-foreground">Cursor</span>
-						<span className="text-primary"> Café</span>
 					</h1>
 
 					{/* Location */}

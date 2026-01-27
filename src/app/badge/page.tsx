@@ -88,8 +88,8 @@ export default function CreditosPage() {
 	// Badge configuration - shared between display and share modal
 	const badgeConfig = {
 		name: guest?.first_name || guest?.name || "Convidado",
-		tags: ["CURSOR CAFÉ", "CURITIBA"] as const,
-		location: "Curitiba, BR • UTC-3",
+		tags: ["CAFE CURSOR", "CURITIBA"] as const,
+		location: "Curitiba, PR",
 		activatedAt: "Jan 27, 2026",
 	};
 
@@ -121,7 +121,7 @@ export default function CreditosPage() {
 					</h1>
 
 					<p className="animate-fade-up delay-200 mt-4 text-base sm:text-lg text-muted-foreground">
-						Grave sua badge e marque presença no Cursor Café Curitiba!
+						Grave sua badge e marque presença no Cafe Cursor Curitiba!
 					</p>
 
 					{/* Fixed-size container to prevent layout shift */}

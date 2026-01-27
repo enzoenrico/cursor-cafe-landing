@@ -58,9 +58,9 @@ export function BadgeCard({
 
 						<div className="relative h-14 w-14 shrink-0 rounded-full border border-white/25 bg-black/25">
 							<div className="absolute inset-0 grid place-items-center text-[10px] font-medium tracking-wide text-white/75">
-								<div className="-rotate-12 leading-tight text-center">
+								<div className="-rotate-12 leading-tight text-start">
+									<div>Cafe</div>
 									<div>Cursor</div>
-									<div>Café</div>
 									<div className="text-white/55">2026</div>
 								</div>
 							</div>
