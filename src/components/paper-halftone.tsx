@@ -22,8 +22,8 @@ export function PaperHalftone({ image, inverted, colors, className }: { image: s
 
 
 	useEffect(() => {
-		const MIN = 0.4;
-		const MAX = 0.8;
+		const MIN = 0.6;
+		const MAX = 0.95;
 		const STEP = 0.05;
 
 		const interval = setInterval(() => {
@@ -40,7 +40,7 @@ export function PaperHalftone({ image, inverted, colors, className }: { image: s
 
 				return next;
 			});
-		}, 250);
+		}, 350);
 		return () => clearInterval(interval);
 	}, [])
 

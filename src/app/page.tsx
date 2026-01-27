@@ -7,10 +7,9 @@ import { Separator } from "@/components/ui/separator";
 import { Countdown } from "@/components/countdown";
 import { PaperHalftone } from "@/components/paper-halftone";
 import { SiteHeader } from "@/components/site-header";
-import { CreditCard, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { GrainGradient } from "@paper-design/shaders-react";
 
 
 export default function Home() {
@@ -21,7 +20,7 @@ export default function Home() {
 				image="/manana.png"
 				inverted
 				colors={{ back: "#222222", front: "#f2f1e8" }}
-				className="opacity-50"
+				className="opacity-30"
 			/>
 
 			<main className="relative min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">

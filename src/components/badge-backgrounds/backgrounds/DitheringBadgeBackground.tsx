@@ -1,11 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { Dithering } from "@paper-design/shaders-react";
 import { MeasuredBackground } from "../MeasuredBackground";
-import { useState } from "react";
+import {
+	type DitheringConfig,
+	type DitheringShape,
+	type DitheringType,
+} from "../registry";
 
 /** Valid shape options for the Dithering shader */
-const DITHERING_SHAPES = [
+const DITHERING_SHAPES: readonly DitheringShape[] = [
 	"simplex",
 	"warp",
 	"dots",
@@ -13,10 +18,10 @@ const DITHERING_SHAPES = [
 	"ripple",
 	"swirl",
 	"sphere",
-] as const;
+];
 
 /** Valid type options for the Dithering shader */
-const DITHERING_TYPES = ["random", "2x2", "4x4", "8x8"] as const;
+const DITHERING_TYPES: readonly DitheringType[] = ["random", "2x2", "4x4", "8x8"];
 
 /** Pick a random element from an array */
 function pickRandom<T>(arr: readonly T[]): T {
@@ -50,7 +55,6 @@ function getDistinctColors(): { colorBack: string; colorFront: string } {
 	const colorBack = randomHexColor();
 	let colorFront = randomHexColor();
 
-	// Re-roll if colors are too similar (luminance difference < 60)
 	let attempts = 0;
 	while (attempts < 10) {
 		const bg = hexToRgb(colorBack);
@@ -73,16 +77,13 @@ function randomInRange(min: number, max: number): number {
 
 /** Random speed excluding near-zero values */
 function randomSpeed(): number {
-	// Pick from [-0.9, -0.2] or [0.2, 0.9]
 	const sign = Math.random() < 0.5 ? -1 : 1;
 	return sign * randomInRange(0.2, 0.9);
 }
 
-/**
- * Dithering shader background with randomized shape, colors, size, and speed.
- */
-export function DitheringBadgeBackground() {
-	const [config] = useState(() => ({
+/** Generate default random config */
+function generateDefaultConfig(): DitheringConfig {
+	return {
 		shape: pickRandom(DITHERING_SHAPES),
 		type: pickRandom(DITHERING_TYPES),
 		...getDistinctColors(),
@@ -90,8 +91,22 @@ export function DitheringBadgeBackground() {
 		speed: randomSpeed(),
 		scale: randomInRange(0.4, 0.8),
 		rotation: Math.floor(Math.random() * 360),
-		offsetX: randomInRange(-0.1, 0.1),
-	}));
+	};
+}
+
+type DitheringBadgeBackgroundProps = {
+	config?: DitheringConfig;
+};
+
+/**
+ * Dithering shader background with randomized shape, colors, size, and speed.
+ */
+export function DitheringBadgeBackground({
+	config,
+}: DitheringBadgeBackgroundProps) {
+	const [settings] = useState<DitheringConfig>(
+		() => config ?? generateDefaultConfig()
+	);
 
 	return (
 		<MeasuredBackground>
@@ -99,15 +114,14 @@ export function DitheringBadgeBackground() {
 				<Dithering
 					width={width}
 					height={height}
-					colorBack={config.colorBack}
-					colorFront={config.colorFront}
-					shape={config.shape}
-					type={config.type}
-					size={config.size}
-					speed={config.speed}
-					scale={config.scale}
-					rotation={config.rotation}
-					offsetX={config.offsetX}
+					colorBack={settings.colorBack}
+					colorFront={settings.colorFront}
+					shape={settings.shape}
+					type={settings.type}
+					size={settings.size}
+					speed={settings.speed}
+					scale={settings.scale}
+					rotation={settings.rotation}
 					className="absolute inset-0 h-full w-full"
 				/>
 			)}

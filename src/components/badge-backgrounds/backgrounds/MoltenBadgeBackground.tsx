@@ -1,16 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import { Heatmap as HeatmapShader } from "@paper-design/shaders-react";
 import { MeasuredBackground } from "../MeasuredBackground";
 import { getRandomColors } from "../utils/getRandomProperties";
-import { useState } from "react";
+import type { MoltenConfig } from "../registry";
+
+type MoltenBadgeBackgroundProps = {
+	config?: MoltenConfig;
+};
 
 /**
  * Molten abstract metal background combining heatmap shader with specular highlights.
  */
-export function MoltenBadgeBackground() {
-	// Lazy initialization generates new colors on each mount
-	const [colors] = useState(() => getRandomColors(7));
+export function MoltenBadgeBackground({ config }: MoltenBadgeBackgroundProps) {
+	const [settings] = useState<MoltenConfig>(
+		() => config ?? { colors: getRandomColors(7) }
+	);
+
 	return (
 		<MeasuredBackground>
 			{({ width, height }) => (
@@ -19,7 +26,7 @@ export function MoltenBadgeBackground() {
 						width={width}
 						height={height}
 						image="/cursor.svg"
-						colors={colors}
+						colors={settings.colors}
 						colorBack="#000000"
 						contour={0.22}
 						angle={18}

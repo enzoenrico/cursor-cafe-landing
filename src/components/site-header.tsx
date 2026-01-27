@@ -7,8 +7,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BadgeIcon, HomeIcon } from "lucide-react";
 
-const EVENT_DATE_LABEL = "January 30, 2026";
 
 function HeaderLink({
 	href,
@@ -40,20 +40,20 @@ function HeaderLink({
 export function SiteHeader({ className }: { className?: string }) {
 	return (
 		<header className={cn("animate-fade-up", className)}>
-			<div className="flex flex-row items-center justify-center gap-3">
+			<div className="flex flex-row items-center justify-around gap-3">
 
 				<nav
 					aria-label="Primary"
-					className="flex items-center justify-center gap-1.5"
+					className="flex items-center justify-center  gap-4  w-full"
 				>
-					<HeaderLink href="/">Home</HeaderLink>
-					<Badge
-						variant="outline"
-						className="px-4 py-1.5 text-sm border-primary/30 text-primary bg-primary/5 backdrop-blur-md"
-					>
-						{EVENT_DATE_LABEL}
-					</Badge>
-					<HeaderLink href="/creditos">Badge</HeaderLink>
+					<HeaderLink href="/">
+						<HomeIcon className="size-4" />
+						<p >Home</p>
+					</HeaderLink>
+					<HeaderLink href="/badge">
+						<BadgeIcon className="size-4" />
+						<p >Badge</p>
+					</HeaderLink>
 				</nav>
 			</div>
 		</header>
