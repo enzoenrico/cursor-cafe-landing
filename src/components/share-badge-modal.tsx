@@ -66,7 +66,7 @@ export function ShareBadgeModal({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md bg-background/95 backdrop-blur-xl border-border/50">
+			<DialogContent className="sm:max-w-md bg-background/95 backdrop-blur-xl border-border/50 max-h-4/5">
 				<DialogHeader>
 					<DialogTitle>Compartilhar badge</DialogTitle>
 					<DialogDescription>
@@ -74,15 +74,9 @@ export function ShareBadgeModal({
 					</DialogDescription>
 				</DialogHeader>
 
-				<div className="flex justify-center py-4">
-					<div
-						ref={badgeRef}
-						className="w-full max-w-[280px] aspect-reels"
-					>
-						<BadgeCard
-							{...badgeProps}
-							className="w-full h-full"
-						/>
+				<div className="flex justify-center">
+					<div ref={badgeRef} className="w-full max-w-sm">
+						<BadgeCard {...badgeProps} className="animate-fade-up w-full" />
 					</div>
 				</div>
 

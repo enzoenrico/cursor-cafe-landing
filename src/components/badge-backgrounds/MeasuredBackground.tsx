@@ -25,6 +25,8 @@ export function MeasuredBackground({
 		if (!el) return;
 
 		let raf = 0;
+		let retryRaf = 0;
+		let retryCount = 0;
 		const measure = () => {
 			const rect = el.getBoundingClientRect();
 			const width = Math.max(0, Math.round(rect.width));
@@ -32,9 +34,18 @@ export function MeasuredBackground({
 			setSize((prev) =>
 				prev.width === width && prev.height === height ? prev : { width, height }
 			);
+			return { width, height };
 		};
 
-		measure();
+		const measureUntilReady = () => {
+			const { width, height } = measure();
+			if ((width === 0 || height === 0) && retryCount < 20) {
+				retryCount += 1;
+				retryRaf = requestAnimationFrame(measureUntilReady);
+			}
+		};
+
+		measureUntilReady();
 		const ro = new ResizeObserver(() => {
 			cancelAnimationFrame(raf);
 			raf = requestAnimationFrame(measure);
@@ -43,6 +54,7 @@ export function MeasuredBackground({
 
 		return () => {
 			cancelAnimationFrame(raf);
+			cancelAnimationFrame(retryRaf);
 			ro.disconnect();
 		};
 	}, []);

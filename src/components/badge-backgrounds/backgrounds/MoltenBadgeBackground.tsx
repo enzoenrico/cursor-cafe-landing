@@ -34,8 +34,9 @@ export function MoltenBadgeBackground({ config }: MoltenBadgeBackgroundProps) {
 						innerGlow={0.86}
 						outerGlow={0.5}
 						speed={0.5}
-						scale={1}
-						className="absolute inset-0 h-full w-full opacity-85"
+						scale={0.9}
+						fit="contain"
+						className="absolute inset-0 h-full w-full scale-110 flex items-center justify-center"
 					/>
 
 					{/* Specular highlights to sell "liquid metal" */}

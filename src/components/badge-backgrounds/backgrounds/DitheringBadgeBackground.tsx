@@ -120,9 +120,10 @@ export function DitheringBadgeBackground({
 					type={settings.type}
 					size={settings.size}
 					speed={settings.speed}
-					scale={settings.scale}
+					scale={0.9}
 					rotation={settings.rotation}
-					className="absolute inset-0 h-full w-full"
+					fit="contain"
+					className="absolute inset-0 h-full w-full scale-110 flex items-center justify-center"
 				/>
 			)}
 		</MeasuredBackground>

@@ -42,9 +42,9 @@ export function LiquidMetalBadgeBackground({
 					contour={0.7}
 					angle={142}
 					speed={0.44}
-					scale={0.5}
-					fit="cover"
-					className="h-full w-full"
+					scale={0.6}
+					fit="contain"
+					className="h-full w-full scale-110 flex items-center justify-center"
 				/>
 			)}
 		</MeasuredBackground>
