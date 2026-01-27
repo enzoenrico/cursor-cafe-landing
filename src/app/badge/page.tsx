@@ -23,9 +23,20 @@ import {
 	generateBackgroundConfig,
 } from "@/components/badge-backgrounds/registry";
 
+type Guest = {
+	name: string;
+	first_name: string;
+	last_name: string;
+	email: string;
+	api_id: string;
+};
+
 export default function CreditosPage() {
 	const [email, setEmail] = useState("");
 	const [submitted, setSubmitted] = useState(false);
+	const [guest, setGuest] = useState<Guest | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
 	const [badgeBackground, setBadgeBackground] =
 		useState<BadgeBackgroundId>("liquid");
 	const [backgroundConfig, setBackgroundConfig] = useState<BadgeBackgroundConfig>(
@@ -76,10 +87,10 @@ export default function CreditosPage() {
 
 	// Badge configuration - shared between display and share modal
 	const badgeConfig = {
-		name: "enzoenrico",
-		tags: ["ALPHA USER", "#54801"] as const,
+		name: guest?.first_name || guest?.name || "Convidado",
+		tags: ["CURSOR CAFÉ", "CURITIBA"] as const,
 		location: "Curitiba, BR • UTC-3",
-		activatedAt: "Jan 23, 2026 • 09:45",
+		activatedAt: "Jan 27, 2026",
 	};
 
 	return (
@@ -110,7 +121,7 @@ export default function CreditosPage() {
 					</h1>
 
 					<p className="animate-fade-up delay-200 mt-4 text-base sm:text-lg text-muted-foreground">
-						Uma forma de sempre lembrar do Cursor Café Curitiba!
+						Grave sua badge e marque presença no Cursor Café Curitiba!
 					</p>
 
 					{/* Fixed-size container to prevent layout shift */}
@@ -121,17 +132,12 @@ export default function CreditosPage() {
 								background={<Background key={backgroundKey} config={backgroundConfig.config} />}
 								className="animate-fade-up w-full"
 								cta={
-									<div className="flex items-start justify-center gap-4">
-										<Button
-											variant="secondary"
-											onClick={swapBadgeBackground}
-										>
-											Trocar estilo
-										</Button>
-										<Button variant="default" onClick={shareBadge}>
-											Compartilhar
-										</Button>
-									</div>
+									<Button
+										variant="secondary"
+										onClick={swapBadgeBackground}
+									>
+										Trocar estilo
+									</Button>
 								}
 							/>
 						) : (
@@ -139,16 +145,62 @@ export default function CreditosPage() {
 								<CardHeader>
 									<CardTitle className="text-left">Seu e-mail</CardTitle>
 									<CardDescription className="text-left">
-										Usamos apenas para enviar a confirmação.
+										Usamos apenas para confirmar sua presença.
 									</CardDescription>
 								</CardHeader>
 
 								<CardContent>
 									<form
 										className="space-y-4"
-										onSubmit={(e) => {
+										onSubmit={async (e) => {
 											e.preventDefault();
-											setSubmitted(true);
+											setError(null);
+											setIsLoading(true);
+
+											try {
+												const response = await fetch("/Cafe Cursor Curitiba - Guests - 2026-01-27-13-20-21.csv");
+												const csvText = await response.text();
+
+												const lines = csvText.split("\n");
+												const headers = lines[0].split(",");
+
+												const emailIndex = headers.indexOf("email");
+												const nameIndex = headers.indexOf("name");
+												const firstNameIndex = headers.indexOf("first_name");
+												const lastNameIndex = headers.indexOf("last_name");
+												const apiIdIndex = headers.indexOf("api_id");
+
+												const normalizedEmail = email.toLowerCase().trim();
+
+												for (let i = 1; i < lines.length; i++) {
+													const line = lines[i];
+													if (!line.trim()) continue;
+
+													// Simple CSV parsing (handles basic cases)
+													const values = line.split(",");
+													const rowEmail = values[emailIndex]?.toLowerCase().trim();
+
+													if (rowEmail === normalizedEmail) {
+														setGuest({
+															name: values[nameIndex] || "",
+															first_name: values[firstNameIndex] || "",
+															last_name: values[lastNameIndex] || "",
+															email: values[emailIndex] || "",
+															api_id: values[apiIdIndex] || "",
+														});
+														setSubmitted(true);
+														setIsLoading(false);
+														return;
+													}
+												}
+
+												setError("E-mail não encontrado na lista de convidados.");
+											} catch (err) {
+												setError("Erro ao verificar e-mail. Tente novamente.");
+												console.error(err);
+											} finally {
+												setIsLoading(false);
+											}
 										}}
 									>
 										<div className="space-y-2 text-left">
@@ -166,17 +218,24 @@ export default function CreditosPage() {
 												autoComplete="email"
 												placeholder="voce@exemplo.com"
 												value={email}
-												onChange={(e) => setEmail(e.target.value)}
+												onChange={(e) => {
+													setEmail(e.target.value);
+													setError(null);
+												}}
 												className="w-full rounded-md border border-border/50 bg-background/40 px-4 py-2.5 text-sm text-foreground shadow-xs backdrop-blur-md placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
 											/>
+											{error && (
+												<p className="text-sm text-red-500 mt-1">{error}</p>
+											)}
 										</div>
 
 										<Button
 											type="submit"
 											size="lg"
 											className="w-full"
+											disabled={isLoading || !email}
 										>
-											Confirmar email
+											{isLoading ? "Verificando..." : "Confirmar email"}
 										</Button>
 									</form>
 								</CardContent>
@@ -186,13 +245,6 @@ export default function CreditosPage() {
 				</div>
 			</main>
 
-			{capturedBadgeProps && (
-				<ShareBadgeModal
-					open={isShareModalOpen}
-					onOpenChange={handleShareModalClose}
-					badgeProps={capturedBadgeProps}
-				/>
-			)}
 		</div>
 	);
 }

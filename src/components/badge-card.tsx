@@ -52,7 +52,7 @@ export function BadgeCard({
 			<div className="relative px-6 pt-12 pb-6 flex flex-col items-start justify-between h-full">
 				<div className="flex flex-col items-start justify-center">
 					<div className="flex items-start justify-between gap-4 pt-8">
-						<div className="text-4xl sm:text-5xl font-bold tracking-tight text-white">
+						<div className="text-4xl sm:text-5xl font-bold tracking-tight text-white text-start">
 							{name}
 						</div>
 

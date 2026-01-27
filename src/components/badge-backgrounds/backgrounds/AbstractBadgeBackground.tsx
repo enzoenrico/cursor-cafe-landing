@@ -31,14 +31,14 @@ export function AbstractBadgeBackground({
 					width={width}
 					height={height}
 					colors={settings.colors}
-					colorBack="#000000"
+					colorBack={getRandomColors(1)[0]}
 					softness={0.2}
 					scale={0.9}
 					intensity={0.75}
 					noise={0.5}
 					fit="contain"
 					shape={settings.shape}
-					speed={1}
+					speed={2}
 					className="absolute inset-0 h-full w-full scale-110 flex items-center justify-center"
 				/>
 			)}
