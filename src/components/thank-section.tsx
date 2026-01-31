@@ -67,6 +67,7 @@ export function ThankSection() {
 								/>
 								<Button
 									variant="default"
+									onClick={() => window.open("https://chat.whatsapp.com/I9YhGre6aoC9Wt6ZOFz1qt", "_blank")}
 								>
 									Entrar no grupo do WhatsApp
 								</Button>

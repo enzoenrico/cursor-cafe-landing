@@ -214,7 +214,9 @@ const PhotoUpload = ({
 							</Button>
 
 							{/* send to drive */}
-							<Button variant="secondary">
+							<Button
+								variant="secondary"
+							>
 								Ver as fotos do evento
 							</Button>
 						</div>
