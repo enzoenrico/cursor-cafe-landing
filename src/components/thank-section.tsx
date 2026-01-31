@@ -3,6 +3,7 @@ import { Card, CardContent } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { DitheringSectionBg } from "./dithering-section-bg";
 import { Button } from "./ui/button";
+import PhotoUpload from "./upload-photos-button";
 
 export function ThankSection() {
 	return (
@@ -52,11 +53,18 @@ export function ThankSection() {
 								>
 									Sua badge e certificado de participação
 								</Button>
-								<Button
+								{/*<Button
 									variant="secondary"
 								>
 									Adicionar suas fotos
-								</Button>
+								</Button>*/}
+								<PhotoUpload
+									scriptUrl="https://script.google.com/macros/s/AKfycbxzBVHfmkDcgAOkPPT_Y4aqJIrxAOuQFkMKq3Y-8IaccS5P77mERuYeLvpTDpdR33EscQ/exec"
+									buttonText="Adicionar suas fotos"
+									allowMultiple={true}
+									maxFiles={10}
+									className="w-full"
+								/>
 								<Button
 									variant="default"
 								>
