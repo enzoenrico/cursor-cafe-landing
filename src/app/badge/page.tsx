@@ -132,7 +132,7 @@ export default function CreditosPage() {
 							{submitted ? (
 								<BadgeCard
 									{...badgeConfig}
-						background={<Background key={backgroundKey} config={backgroundConfig.config} />}
+									background={<Background key={backgroundKey} config={backgroundConfig.config} />}
 									className="animate-fade-up w-full"
 									cta={
 										<Button
@@ -161,7 +161,7 @@ export default function CreditosPage() {
 												setIsLoading(true);
 
 												try {
-													const response = await fetch("/Cafe Cursor Curitiba - Guests - 2026-01-27-13-20-21.csv");
+													const response = await fetch("/guests.csv");
 													const csvText = await response.text();
 
 													const lines = csvText.split("\n");
@@ -179,7 +179,6 @@ export default function CreditosPage() {
 														const line = lines[i];
 														if (!line.trim()) continue;
 
-														// Simple CSV parsing (handles basic cases)
 														const values = line.split(",");
 														const rowEmail = values[emailIndex]?.toLowerCase().trim();
 
@@ -197,7 +196,7 @@ export default function CreditosPage() {
 														}
 													}
 
-													setError("E-mail não encontrado na lista de convidados.");
+													setError("Email não confirmado no evento.");
 												} catch (err) {
 													setError("Erro ao verificar e-mail. Tente novamente.");
 													console.error(err);
