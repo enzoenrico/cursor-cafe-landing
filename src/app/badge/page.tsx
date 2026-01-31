@@ -116,131 +116,135 @@ export default function CreditosPage() {
 				<div className="w-full max-w-3xl mx-auto text-center">
 					<SiteHeader className="mb-6" />
 
-					<h1 className="animate-fade-up delay-100 text-4xl sm:text-6xl font-bold tracking-tight">
-						Sua badge
-					</h1>
+					<div className="flex flex-col items-center justify-center gap-8">
+						<div className="animate-fade-up delay-100 text-center">
+							<h1 className="animate-fade-up delay-100 text-4xl sm:text-6xl font-bold tracking-tight">
+								Sua badge do Cafe Cursor Curitiba
+							</h1>
 
-					<p className="animate-fade-up delay-200 mt-4 text-base sm:text-lg text-muted-foreground">
-						Grave sua badge e marque presença no Cafe Cursor Curitiba!
-					</p>
+							<p className="animate-fade-up delay-200 mt-4 text-base sm:text-lg text-muted-foreground">
+								Com o seu e-mail, você pode gerar sua badge do Cafe Cursor Curitiba, para compartilhar e sempre lembrar desse momento incrível!
+							</p>
+							<p className="animate-fade-up delay-200 mt-4 text-sm text-muted-foreground">Badge elegivél à aqueles que tiveram sua presença validada pelos organizadores.</p>
+						</div>
 
-					{/* Fixed-size container to prevent layout shift */}
-					<div className="animate-scale-in delay-300 mt-10 mx-auto w-full max-w-sm min-h-[480px] flex items-center justify-center">
-						{submitted ? (
-							<BadgeCard
-								{...badgeConfig}
-								background={<Background key={backgroundKey} config={backgroundConfig.config} />}
-								className="animate-fade-up w-full"
-								cta={
-									<Button
-										variant="secondary"
-										onClick={swapBadgeBackground}
-									>
-										Trocar estilo
-									</Button>
-								}
-							/>
-						) : (
-							<Card className="border-border/50 bg-transparent rounded-4xl backdrop-blur-xl w-full">
-								<CardHeader>
-									<CardTitle className="text-left">Seu e-mail</CardTitle>
-									<CardDescription className="text-left">
-										Usamos apenas para confirmar sua presença.
-									</CardDescription>
-								</CardHeader>
-
-								<CardContent>
-									<form
-										className="space-y-4"
-										onSubmit={async (e) => {
-											e.preventDefault();
-											setError(null);
-											setIsLoading(true);
-
-											try {
-												const response = await fetch("/Cafe Cursor Curitiba - Guests - 2026-01-27-13-20-21.csv");
-												const csvText = await response.text();
-
-												const lines = csvText.split("\n");
-												const headers = lines[0].split(",");
-
-												const emailIndex = headers.indexOf("email");
-												const nameIndex = headers.indexOf("name");
-												const firstNameIndex = headers.indexOf("first_name");
-												const lastNameIndex = headers.indexOf("last_name");
-												const apiIdIndex = headers.indexOf("api_id");
-
-												const normalizedEmail = email.toLowerCase().trim();
-
-												for (let i = 1; i < lines.length; i++) {
-													const line = lines[i];
-													if (!line.trim()) continue;
-
-													// Simple CSV parsing (handles basic cases)
-													const values = line.split(",");
-													const rowEmail = values[emailIndex]?.toLowerCase().trim();
-
-													if (rowEmail === normalizedEmail) {
-														setGuest({
-															name: values[nameIndex] || "",
-															first_name: values[firstNameIndex] || "",
-															last_name: values[lastNameIndex] || "",
-															email: values[emailIndex] || "",
-															api_id: values[apiIdIndex] || "",
-														});
-														setSubmitted(true);
-														setIsLoading(false);
-														return;
-													}
-												}
-
-												setError("E-mail não encontrado na lista de convidados.");
-											} catch (err) {
-												setError("Erro ao verificar e-mail. Tente novamente.");
-												console.error(err);
-											} finally {
-												setIsLoading(false);
-											}
-										}}
-									>
-										<div className="space-y-2 text-left">
-											<label
-												htmlFor="email"
-												className="text-sm font-medium text-foreground"
-											>
-												Email
-											</label>
-											<input
-												id="email"
-												name="email"
-												type="email"
-												inputMode="email"
-												autoComplete="email"
-												placeholder="voce@exemplo.com"
-												value={email}
-												onChange={(e) => {
-													setEmail(e.target.value);
-													setError(null);
-												}}
-												className="w-full rounded-md border border-border/50 bg-background/40 px-4 py-2.5 text-sm text-foreground shadow-xs backdrop-blur-md placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-											/>
-											{error && (
-												<p className="text-sm text-red-500 mt-1">{error}</p>
-											)}
-										</div>
-
+						<div className="animate-scale-in delay-300  mx-auto w-full max-w-sm  flex items-center justify-center">
+							{submitted ? (
+								<BadgeCard
+									{...badgeConfig}
+						background={<Background key={backgroundKey} config={backgroundConfig.config} />}
+									className="animate-fade-up w-full"
+									cta={
 										<Button
-											type="submit"
-											size="lg"
-											className="w-full"
-											disabled={isLoading || !email}
+											variant="secondary"
+											onClick={swapBadgeBackground}
 										>
-											{isLoading ? "Verificando..." : "Confirmar email"}
+											Trocar estilo
 										</Button>
-									</form>
-								</CardContent>
-							</Card>
-						)}
+									}
+								/>
+							) : (
+								<Card className="border-border/50 bg-transparent rounded-4xl backdrop-blur-xl w-full">
+									<CardHeader>
+										<CardTitle className="text-left">Seu e-mail</CardTitle>
+										<CardDescription className="text-left">
+											Usamos apenas para confirmar sua presença.
+										</CardDescription>
+									</CardHeader>
+
+									<CardContent>
+										<form
+											className="space-y-4"
+											onSubmit={async (e) => {
+												e.preventDefault();
+												setError(null);
+												setIsLoading(true);
+
+												try {
+													const response = await fetch("/Cafe Cursor Curitiba - Guests - 2026-01-27-13-20-21.csv");
+													const csvText = await response.text();
+
+													const lines = csvText.split("\n");
+													const headers = lines[0].split(",");
+
+													const emailIndex = headers.indexOf("email");
+													const nameIndex = headers.indexOf("name");
+													const firstNameIndex = headers.indexOf("first_name");
+													const lastNameIndex = headers.indexOf("last_name");
+													const apiIdIndex = headers.indexOf("api_id");
+
+													const normalizedEmail = email.toLowerCase().trim();
+
+													for (let i = 1; i < lines.length; i++) {
+														const line = lines[i];
+														if (!line.trim()) continue;
+
+														// Simple CSV parsing (handles basic cases)
+														const values = line.split(",");
+														const rowEmail = values[emailIndex]?.toLowerCase().trim();
+
+														if (rowEmail === normalizedEmail) {
+															setGuest({
+																name: values[nameIndex] || "",
+																first_name: values[firstNameIndex] || "",
+																last_name: values[lastNameIndex] || "",
+																email: values[emailIndex] || "",
+																api_id: values[apiIdIndex] || "",
+															});
+															setSubmitted(true);
+															setIsLoading(false);
+															return;
+														}
+													}
+
+													setError("E-mail não encontrado na lista de convidados.");
+												} catch (err) {
+													setError("Erro ao verificar e-mail. Tente novamente.");
+													console.error(err);
+												} finally {
+													setIsLoading(false);
+												}
+											}}
+										>
+											<div className="space-y-2 text-left">
+												<label
+													htmlFor="email"
+													className="text-sm font-medium text-foreground"
+												>
+													Email
+												</label>
+												<input
+													id="email"
+													name="email"
+													type="email"
+													inputMode="email"
+													autoComplete="email"
+													placeholder="voce@exemplo.com"
+													value={email}
+													onChange={(e) => {
+														setEmail(e.target.value);
+														setError(null);
+													}}
+													className="w-full rounded-md border border-border/50 bg-background/40 px-4 py-2.5 text-sm text-foreground shadow-xs backdrop-blur-md placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+												/>
+												{error && (
+													<p className="text-sm text-red-500 mt-1">{error}</p>
+												)}
+											</div>
+
+											<Button
+												type="submit"
+												size="lg"
+												className="w-full"
+												disabled={isLoading || !email}
+											>
+												{isLoading ? "Verificando..." : "Confirmar email"}
+											</Button>
+										</form>
+									</CardContent>
+								</Card>
+							)}
+						</div>
 					</div>
 				</div>
 			</main>
