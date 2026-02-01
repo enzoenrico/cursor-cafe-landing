@@ -59,7 +59,7 @@ export function ThankSection() {
 									buttonText="Adicionar suas fotos"
 									allowMultiple={true}
 									maxFiles={10}
-									//className="w-full"
+								//className="w-full"
 								/>
 								<Button
 									variant="default"
