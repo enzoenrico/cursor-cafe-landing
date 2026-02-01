@@ -26,16 +26,18 @@ export function VerticalCarousel({
 	autoScrollSpeed = 3000,
 	className,
 }: VerticalCarouselProps) {
-	const [scrollPosition, setScrollPosition] = useState(0);
+	const imageHeight = 200; // Base height for each image slot
+	const totalHeight = images.length * imageHeight;
+
+	// Start in the "middle" of the duplicated array so images appear above and below
+	const [scrollPosition, setScrollPosition] = useState(totalHeight);
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const lastTimeRef = useRef<number>(0);
 	const animationRef = useRef<number>(0);
-	const imageHeight = 200; // Base height for each image slot
-	const totalHeight = images.length * imageHeight;
 
 	// Calculate which image is currently "active" based on scroll position
-	const scrollActiveIndex = Math.round(scrollPosition / imageHeight) % images.length - 1;
+	const scrollActiveIndex = Math.floor(scrollPosition / imageHeight) % images.length;
 
 	// Effective active is hovered image or scroll-determined active
 	const effectiveActive = hoveredIndex ?? scrollActiveIndex;
@@ -94,8 +96,8 @@ export function VerticalCarousel({
 
 			setScrollPosition((prev) => {
 				const newPosition = prev + scrollIncrement;
-				// Reset when we've scrolled through all images (for seamless loop)
-				if (newPosition >= totalHeight) {
+				// Seamless wrap: when exceeding 2x total, wrap back to 1x (staying in middle copy)
+				if (newPosition >= totalHeight * 2) {
 					return newPosition - totalHeight;
 				}
 				return newPosition;
@@ -147,7 +149,7 @@ export function VerticalCarousel({
 							onMouseLeave={() => setHoveredIndex(null)}
 						>
 							<div
-								className="relative h-full w-full cursor-pointer overflow-hidden rounded-xl border border-border/50 bg-card shadow-lg"
+								className="relative h-full w-full cursor-pointer overflow-hidden rounded-xl border border-border/50 bg-card shadow-lg transition-all duration-300"
 								style={getImageStyles(originalIndex)}
 							>
 								<Image

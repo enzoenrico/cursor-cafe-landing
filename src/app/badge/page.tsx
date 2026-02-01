@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { BadgeCard, type BadgeCardProps } from "@/components/badge-card";
 import { ShareBadgeModal } from "@/components/share-badge-modal";
+import { CertificateModal } from "@/components/certificate-modal";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -48,6 +49,7 @@ export default function CreditosPage() {
 		height: number;
 	} | null>(null);
 	const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+	const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
 	const [capturedBadgeProps, setCapturedBadgeProps] = useState<
 		Omit<BadgeCardProps, "cta" | "className"> | null
 	>(null);
@@ -81,6 +83,10 @@ export default function CreditosPage() {
 		if (!open) {
 			setCapturedBadgeProps(null);
 		}
+	};
+
+	const showCertificateModal = () => {
+		setIsCertificateModalOpen(true);
 	};
 
 	const Background = badgeBackgroundById[badgeBackground];
@@ -135,12 +141,23 @@ export default function CreditosPage() {
 									background={<Background key={backgroundKey} config={backgroundConfig.config} />}
 									className="animate-fade-up w-full"
 									cta={
-										<Button
-											variant="secondary"
-											onClick={swapBadgeBackground}
-										>
-											Trocar estilo
-										</Button>
+										<div className="flex flex-row items-center justify-center gap-2">
+											<Button
+												variant="secondary"
+												onClick={swapBadgeBackground}
+												className="flex-1"
+											>
+												Trocar estilo
+											</Button>
+
+											<Button
+												variant="secondary"
+												onClick={showCertificateModal}
+												className="flex-1"
+											>
+												Gerar certificado de participação
+											</Button>
+										</div>
 									}
 								/>
 							) : (
@@ -248,6 +265,14 @@ export default function CreditosPage() {
 				</div>
 			</main>
 
+			{guest && (
+				<CertificateModal
+					open={isCertificateModalOpen}
+					onOpenChange={setIsCertificateModalOpen}
+					guestName={guest.name || `${guest.first_name} ${guest.last_name}`.trim()}
+					guestEmail={guest.email}
+				/>
+			)}
 		</div>
 	);
 }

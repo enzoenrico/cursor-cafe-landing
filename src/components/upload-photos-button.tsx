@@ -158,6 +158,42 @@ const PhotoUpload = ({
 		});
 	};
 
+	const renderButtonContent = () => {
+		if (isUploading) {
+			return (
+				<div className="flex items-center justify-center gap-2">
+					<Loader2 className="w-4 h-4 animate-spin" />
+					<span>Subindo suas fotos...</span>
+				</div>
+			);
+		}
+
+		switch (status.type) {
+			case "success":
+				return (
+					<div className="flex items-center justify-center gap-2">
+						<CheckCircle className="w-4 h-4" />
+						<span>Fotos enviadas com sucesso!</span>
+					</div>
+				);
+			case "error":
+				return (
+					<div className="flex items-center justify-center gap-2">
+						<XCircle className="w-4 h-4" />
+						<span>Erro ao enviar fotos!</span>
+						<span>{status.message}</span>
+					</div>
+				);
+			default:
+				return (
+					<div className="flex items-center justify-center gap-2">
+						<CameraIcon className="w-4 h-4" />
+						<span>Adicionar suas fotos</span>
+					</div>
+				);
+		}
+	};
+
 	return (
 		<div
 			className={cn(
@@ -190,32 +226,13 @@ const PhotoUpload = ({
 								)}
 								variant="default"
 							>
-								{isUploading ?
-									<div className="flex items-center justify-center gap-2">
-										<Loader2 className="w-4 h-4 animate-spin" />
-										<span>Subindo suas fotos...</span>
-									</div>
-									: status.type === "success" ?
-										<div className="flex items-center justify-center gap-2">
-											<CheckCircle className="w-4 h-4" />
-											<span>Fotos enviadas com sucesso!</span>
-										</div>
-										: status.type === "error" ?
-											<div className="flex items-center justify-center gap-2">
-												<XCircle className="w-4 h-4" />
-												<span>Erro ao enviar fotos!</span>
-												<span>{status.message}</span>
-											</div>
-											: <div className="flex items-center justify-center gap-2">
-												<CameraIcon className="w-4 h-4" />
-												<span>Adicionar suas fotos</span>
-											</div>
-								}
+								{renderButtonContent()}
 							</Button>
 
 							{/* send to drive */}
 							<Button
 								variant="secondary"
+								onClick={() => window.open("https://drive.google.com/drive/folders/1rk7dMXG7IyWa6S_WTdIjGQTBPdifVtAJ", "_blank")}
 							>
 								Ver as fotos do evento
 							</Button>
