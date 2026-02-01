@@ -47,23 +47,19 @@ export function ThankSection() {
 								Aqui, podem links para adicionar as fotos que tiraram, gerar a sua badge e certificado de participação e se conectar com outros participantes.
 							</p>
 
-							<div className="flex flex-row items-center justify-center gap-4">
+							<div className="flex flex-col md:flex-row items-center justify-center gap-4">
 								<Button
 									variant="default"
+									onClick={() => window.open("/badge", "_blank")}
 								>
 									Sua badge e certificado de participação
 								</Button>
-								{/*<Button
-									variant="secondary"
-								>
-									Adicionar suas fotos
-								</Button>*/}
 								<PhotoUpload
 									scriptUrl="https://script.google.com/macros/s/AKfycbxzBVHfmkDcgAOkPPT_Y4aqJIrxAOuQFkMKq3Y-8IaccS5P77mERuYeLvpTDpdR33EscQ/exec"
 									buttonText="Adicionar suas fotos"
 									allowMultiple={true}
 									maxFiles={10}
-									className="w-full"
+									//className="w-full"
 								/>
 								<Button
 									variant="default"

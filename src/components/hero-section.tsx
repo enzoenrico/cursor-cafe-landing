@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PaperHalftone } from "@/components/paper-halftone";
 import { SiteHeader } from "@/components/site-header";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, MessageSquarePlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -72,26 +72,43 @@ export function HeroSection() {
 
 					{/* Links */}
 					<div className="animate-fade-up delay-600 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-						<Button asChild size="lg" className="w-full sm:w-auto gap-2">
-							<a
-								href="https://cursor.com"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{/*<ExternalLink className="size-4" />*/}
-								<Image src="/cursor.svg" alt="Cursor" width={20} height={20} />
-								cursor.com
-							</a>
-						</Button>
 
 						<Button
-							variant="secondary"
+							variant="default"
 							size="lg"
 							className="w-full sm:w-auto gap-2 cursor-pointer"
 							onClick={() => window.open("https://chat.whatsapp.com/I9YhGre6aoC9Wt6ZOFz1qt", "_blank")}
 						>
 							<MessageCircle className="size-4" />
 							Entre no grupo do WhatsApp
+						</Button>
+
+						<Button asChild size="lg" className="w-full sm:w-auto gap-2" variant="secondary">
+							<a
+								href="https://cursor.com"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{/*<ExternalLink className="size-4" />*/}
+								<Image src="/cursor.svg" alt="Cursor" width={20} height={20} className="invert" />
+								cursor.com
+							</a>
+						</Button>
+
+						<Button
+							asChild
+							variant="default"
+							size="lg"
+							className="w-full sm:w-auto gap-2"
+						>
+							<a
+								href="https://form.typeform.com/to/Hy3GguYd"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<MessageSquarePlus className="size-4" />
+								Deixe seu feedback
+							</a>
 						</Button>
 					</div>
 
