@@ -158,7 +158,6 @@ export function VerticalCarousel({
 									fill
 									className="object-cover"
 									sizes="(max-width: 768px) 100vw, 400px"
-									unoptimized // Required for external URLs like picsum
 								/>
 							</div>
 						</div>
