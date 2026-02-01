@@ -80,24 +80,36 @@ export function ThankSection() {
 						className="h-full"
 						images={[
 							{
-								src: "/Images/IMG_2885.jpg",
+								src: "/Images/IMG_2924.JPG",
 								alt: "Foto 1",
 							},
 							{
-								src: "/Images/IMG_2924.jpg",
+								src: "/Images/IMG_3020.JPG",
+								alt: "Foto 2",
+							},
+							{
+								src: "/Images/IMG_3039.JPG",
 								alt: "Foto 3",
 							},
 							{
-								src: "/Images/IMG_3020.jpg",
+								src: "/Images/IMG_3099.JPG",
 								alt: "Foto 4",
 							},
 							{
-								src: "/Images/IMG_3039.jpg",
+								src: "/Images/IMG_3152.JPG",
 								alt: "Foto 5",
 							},
 							{
-								src: "/Images/IMG_3099.jpg",
+								src: "/Images/IMG_3181.JPG",
 								alt: "Foto 6",
+							},
+							{
+								src: "/Images/IMG_3222.JPG",
+								alt: "Foto 7",
+							},
+							{
+								src: "/Images/IMG_3229.JPG",
+								alt: "Foto 8",
 							},
 						]}
 					/>
