@@ -102,7 +102,7 @@ export function HeroSection() {
 							className="w-full sm:w-auto gap-2"
 						>
 							<a
-								href="https://form.typeform.com/to/Hy3GguYd"
+								href="https://forms.gle/iKovWxB932UN8YTB9"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
