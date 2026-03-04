@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# guest data - use GUESTS_CSV env var in production instead
+public/guests.csv
+
 # vercel
 .vercel
 

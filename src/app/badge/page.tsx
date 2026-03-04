@@ -178,7 +178,8 @@ export default function CreditosPage() {
 												setIsLoading(true);
 
 												try {
-													const response = await fetch("/guests.csv");
+													const response = await fetch("/api/guests");
+													if (!response.ok) throw new Error("Failed to fetch");
 													const csvText = await response.text();
 
 													const lines = csvText.split("\n");
