@@ -14,9 +14,10 @@ type MoltenBadgeBackgroundProps = {
  * Molten abstract metal background combining heatmap shader with specular highlights.
  */
 export function MoltenBadgeBackground({ config }: MoltenBadgeBackgroundProps) {
-	const [settings] = useState<MoltenConfig>(
-		() => config ?? { colors: getRandomColors(7) }
-	);
+	const [fallback] = useState<MoltenConfig>(() => ({
+		colors: getRandomColors(7),
+	}));
+	const settings = config ?? fallback;
 
 	return (
 		<MeasuredBackground>
@@ -39,7 +40,6 @@ export function MoltenBadgeBackground({ config }: MoltenBadgeBackgroundProps) {
 						className="absolute inset-0 h-full w-full scale-110 flex items-center justify-center"
 					/>
 
-					{/* Specular highlights to sell "liquid metal" */}
 					<div
 						className={[
 							"absolute inset-0",

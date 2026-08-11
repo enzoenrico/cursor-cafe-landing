@@ -1,17 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { BadgeCard, type BadgeCardProps } from "@/components/badge-card";
 import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import { downloadBlob, recordBadgeVideo } from "@/lib/video-export";
 
 type ExportVideoModalProps = {
@@ -28,55 +21,98 @@ export function ExportVideoModal({
 	fileName,
 }: ExportVideoModalProps) {
 	const badgeRef = useRef<HTMLDivElement>(null);
+	const recordingRef = useRef(false);
+	const previewUrlRef = useRef<string | null>(null);
+	const [mounted, setMounted] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [progress, setProgress] = useState(0);
 	const [error, setError] = useState<string | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-	const resetPreview = () => {
-		if (previewUrl) URL.revokeObjectURL(previewUrl);
+	useEffect(() => {
+		const frame = requestAnimationFrame(() => setMounted(true));
+		return () => cancelAnimationFrame(frame);
+	}, []);
+
+	useEffect(() => {
+		previewUrlRef.current = previewUrl;
+	}, [previewUrl]);
+
+	const clearPreview = useCallback(() => {
+		if (previewUrlRef.current) {
+			URL.revokeObjectURL(previewUrlRef.current);
+			previewUrlRef.current = null;
+		}
 		setPreviewUrl(null);
 		setProgress(0);
 		setError(null);
-	};
+	}, []);
 
-	const handleOpenChange = (next: boolean) => {
-		if (!next) {
-			resetPreview();
-			setIsRecording(false);
-		}
-		onOpenChange(next);
-	};
+	const close = useCallback(() => {
+		clearPreview();
+		recordingRef.current = false;
+		setIsRecording(false);
+		onOpenChange(false);
+	}, [clearPreview, onOpenChange]);
 
-	const exportVideo = async () => {
-		if (!badgeRef.current) return;
+	const exportVideo = useCallback(async () => {
+		if (!badgeRef.current || recordingRef.current) return;
+		recordingRef.current = true;
 		setIsRecording(true);
 		setError(null);
 		setProgress(0);
-		if (previewUrl) {
-			URL.revokeObjectURL(previewUrl);
-			setPreviewUrl(null);
-		}
+		clearPreview();
 
 		try {
-			const blob = await recordBadgeVideo(badgeRef.current, {
-				durationMs: 3200,
-				fps: 20,
-				pixelRatio: 2,
+			await new Promise<void>((resolve) => {
+				requestAnimationFrame(() => resolve());
+			});
+			await new Promise<void>((resolve) => {
+				window.setTimeout(() => resolve(), 250);
+			});
+
+			const target = badgeRef.current;
+			if (!target) throw new Error("Badge preview is not ready yet.");
+
+			const blob = await recordBadgeVideo(target, {
+				durationMs: 2800,
+				fps: 16,
+				pixelRatio: 1.5,
 				onProgress: setProgress,
 			});
 			const url = URL.createObjectURL(blob);
+			previewUrlRef.current = url;
 			setPreviewUrl(url);
 			downloadBlob(blob, `${fileName}.webm`);
 		} catch (err) {
 			console.error(err);
 			setError(
-				"Video export failed in this browser. Try Chrome or Edge on desktop."
+				err instanceof Error
+					? err.message
+					: "Video export failed in this browser. Try Chrome or Edge on desktop."
 			);
 		} finally {
+			recordingRef.current = false;
 			setIsRecording(false);
 		}
-	};
+	}, [clearPreview, fileName]);
+
+	useEffect(() => {
+		if (!open) return;
+		const timer = window.setTimeout(() => {
+			void exportVideo();
+		}, 450);
+		return () => window.clearTimeout(timer);
+	}, [open, exportVideo]);
+
+	useEffect(() => {
+		if (!open) return;
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key === "Escape" && !recordingRef.current) close();
+		};
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, [open, close]);
 
 	const shareVideo = async () => {
 		if (!previewUrl) return;
@@ -99,25 +135,40 @@ export function ExportVideoModal({
 		}
 	};
 
-	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<DialogContent className="max-h-[90vh] overflow-y-auto border-border/50 bg-background/95 sm:max-w-md">
-				<DialogHeader>
-					<DialogTitle>Export animated badge</DialogTitle>
-					<DialogDescription>
-						Records a few seconds of your live badge — shaders included — as a
-						WebM video you can share online.
-					</DialogDescription>
-				</DialogHeader>
+	if (!open || !mounted) return null;
+
+	return createPortal(
+		<div
+			className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="export-video-title"
+			data-testid="export-video-modal"
+			onClick={(event) => {
+				if (event.target === event.currentTarget && !recordingRef.current) {
+					close();
+				}
+			}}
+		>
+			<div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-border/50 bg-background p-6 shadow-2xl">
+				<div className="mb-4 space-y-1">
+					<h2 id="export-video-title" className="text-lg font-semibold">
+						Export animated badge
+					</h2>
+					<p className="text-sm text-muted-foreground">
+						Recording a few seconds of your live badge — shaders included — as a
+						WebM you can share online.
+					</p>
+				</div>
 
 				<div className="flex justify-center">
-					<div ref={badgeRef} className="w-full max-w-[280px]">
+					<div ref={badgeRef} className="w-full max-w-[260px]">
 						<BadgeCard {...badgeProps} className="w-full" />
 					</div>
 				</div>
 
 				{isRecording ? (
-					<div className="space-y-2">
+					<div className="mt-4 space-y-2">
 						<div className="h-2 overflow-hidden rounded-full bg-secondary">
 							<div
 								className="h-full bg-primary transition-[width] duration-150"
@@ -133,7 +184,7 @@ export function ExportVideoModal({
 				{previewUrl ? (
 					<video
 						src={previewUrl}
-						className="mx-auto max-h-64 w-full rounded-xl border border-white/10"
+						className="mx-auto mt-4 max-h-64 w-full rounded-xl border border-white/10"
 						autoPlay
 						loop
 						muted
@@ -142,26 +193,41 @@ export function ExportVideoModal({
 					/>
 				) : null}
 
-				{error ? <p className="text-sm text-red-400">{error}</p> : null}
+				{error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
 
-				<DialogFooter className="flex-row gap-2 sm:justify-center">
+				<div className="mt-5 flex gap-2">
 					<Button
+						type="button"
 						variant="outline"
 						className="flex-1"
-						onClick={exportVideo}
+						onClick={() => void exportVideo()}
 						disabled={isRecording}
 					>
-						{isRecording ? "Recording…" : previewUrl ? "Record again" : "Record video"}
+						{isRecording
+							? "Recording…"
+							: previewUrl
+								? "Record again"
+								: "Record video"}
 					</Button>
 					<Button
+						type="button"
 						className="flex-1"
-						onClick={shareVideo}
+						onClick={() => void shareVideo()}
 						disabled={!previewUrl || isRecording}
 					>
 						Share
 					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+					<Button
+						type="button"
+						variant="ghost"
+						onClick={close}
+						disabled={isRecording}
+					>
+						Close
+					</Button>
+				</div>
+			</div>
+		</div>,
+		document.body
 	);
 }

@@ -16,13 +16,11 @@ type AbstractBadgeBackgroundProps = {
 export function AbstractBadgeBackground({
 	config,
 }: AbstractBadgeBackgroundProps) {
-	const [settings] = useState<AbstractConfig>(
-		() =>
-			config ?? {
-				shape: getRandomShape(),
-				colors: getRandomColors(Math.floor(Math.random() * 10) + 1),
-			}
-	);
+	const [fallback] = useState<AbstractConfig>(() => ({
+		shape: getRandomShape(),
+		colors: getRandomColors(Math.floor(Math.random() * 10) + 1),
+	}));
+	const settings = config ?? fallback;
 
 	return (
 		<MeasuredBackground>
@@ -31,7 +29,7 @@ export function AbstractBadgeBackground({
 					width={width}
 					height={height}
 					colors={settings.colors}
-					colorBack={getRandomColors(1)[0]}
+					colorBack="#111111"
 					softness={0.2}
 					scale={0.9}
 					intensity={0.75}

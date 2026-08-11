@@ -16,13 +16,11 @@ type LiquidMetalBadgeBackgroundProps = {
 export function LiquidMetalBadgeBackground({
 	config,
 }: LiquidMetalBadgeBackgroundProps) {
-	const [colors] = useState<LiquidMetalConfig>(
-		() =>
-			config ?? {
-				colorBack: getRandomColors(1)[0],
-				colorTint: getRandomColors(1)[0],
-			}
-	);
+	const [fallback] = useState<LiquidMetalConfig>(() => ({
+		colorBack: getRandomColors(1)[0],
+		colorTint: getRandomColors(1)[0],
+	}));
+	const colors = config ?? fallback;
 
 	return (
 		<MeasuredBackground>

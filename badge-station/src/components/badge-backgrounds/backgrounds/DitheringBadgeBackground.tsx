@@ -9,7 +9,6 @@ import {
 	type DitheringType,
 } from "../registry";
 
-/** Valid shape options for the Dithering shader */
 const DITHERING_SHAPES: readonly DitheringShape[] = [
 	"simplex",
 	"warp",
@@ -20,25 +19,18 @@ const DITHERING_SHAPES: readonly DitheringShape[] = [
 	"sphere",
 ];
 
-/** Valid type options for the Dithering shader */
 const DITHERING_TYPES: readonly DitheringType[] = ["random", "2x2", "4x4", "8x8"];
 
-/** Pick a random element from an array */
 function pickRandom<T>(arr: readonly T[]): T {
 	return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/** Generate a random hex color */
 function randomHexColor(): string {
 	return `#${Math.floor(Math.random() * 16777215)
 		.toString(16)
 		.padStart(6, "0")}`;
 }
 
-/**
- * Generate two distinct colors (re-rolls if they're too similar).
- * Uses simple luminance-based distance check.
- */
 function getDistinctColors(): { colorBack: string; colorFront: string } {
 	const hexToRgb = (hex: string) => {
 		const h = hex.replace("#", "");
@@ -70,18 +62,15 @@ function getDistinctColors(): { colorBack: string; colorFront: string } {
 	return { colorBack, colorFront };
 }
 
-/** Random float in range [min, max] */
 function randomInRange(min: number, max: number): number {
 	return Math.random() * (max - min) + min;
 }
 
-/** Random speed excluding near-zero values */
 function randomSpeed(): number {
 	const sign = Math.random() < 0.5 ? -1 : 1;
 	return sign * randomInRange(0.2, 0.9);
 }
 
-/** Generate default random config */
 function generateDefaultConfig(): DitheringConfig {
 	return {
 		shape: pickRandom(DITHERING_SHAPES),
@@ -104,9 +93,8 @@ type DitheringBadgeBackgroundProps = {
 export function DitheringBadgeBackground({
 	config,
 }: DitheringBadgeBackgroundProps) {
-	const [settings] = useState<DitheringConfig>(
-		() => config ?? generateDefaultConfig()
-	);
+	const [fallback] = useState<DitheringConfig>(() => generateDefaultConfig());
+	const settings = config ?? fallback;
 
 	return (
 		<MeasuredBackground>

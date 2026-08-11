@@ -115,22 +115,7 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 			<div className="w-full max-w-sm shrink-0">
 				<BadgeCard
 					{...badgeProps}
-					className="animate-scale-in w-full"
-					cta={
-						<div className="flex gap-2">
-							<Button
-								variant="secondary"
-								className="flex-1"
-								onClick={rerollStyle}
-								disabled={isPending}
-							>
-								Reroll style
-							</Button>
-							<Button className="flex-1" onClick={() => setIsExportOpen(true)}>
-								Export video
-							</Button>
-						</div>
-					}
+					className="animate-scale-in w-full pointer-events-auto"
 				/>
 			</div>
 
@@ -167,6 +152,7 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 							placeholder="Your name"
 						/>
 						<Button
+							type="button"
 							variant="secondary"
 							onClick={saveName}
 							disabled={isPending || !nameDraft.trim()}
@@ -189,6 +175,7 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 						).map(([id, label]) => (
 							<Button
 								key={id}
+								type="button"
 								variant={badge.backgroundId === id ? "default" : "outline"}
 								onClick={() => setStyle(id)}
 								disabled={isPending}
@@ -197,15 +184,35 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 							</Button>
 						))}
 					</div>
-					<Button
-						variant="ghost"
-						className="w-full"
-						onClick={randomizeSameStyle}
-						disabled={isPending}
-					>
-						Shuffle colors
-					</Button>
+					<div className="grid grid-cols-2 gap-2">
+						<Button
+							type="button"
+							variant="secondary"
+							onClick={rerollStyle}
+							disabled={isPending}
+						>
+							Reroll style
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={randomizeSameStyle}
+							disabled={isPending}
+						>
+							Shuffle colors
+						</Button>
+					</div>
 				</div>
+
+				<Button
+					type="button"
+					size="lg"
+					className="w-full"
+					onClick={() => setIsExportOpen(true)}
+					data-testid="export-video-button"
+				>
+					Export animated video
+				</Button>
 
 				<p className="text-xs text-muted-foreground">
 					Badge ID{" "}

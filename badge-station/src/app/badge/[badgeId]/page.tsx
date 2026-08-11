@@ -40,16 +40,23 @@ export default function BadgePage() {
 					return;
 				}
 
-				if (!cancelled && !cached) {
-					setError("Badge not found. Scan the event QR again to get a new one.");
-					setLoading(false);
+				// Client-created badges live in localStorage; API 404 is expected on serverless.
+				if (!cancelled) {
+					if (cached) {
+						setLoading(false);
+					} else {
+						setError("Badge not found. Scan the event QR again to get a new one.");
+						setLoading(false);
+					}
 				}
 			} catch {
-				if (!cancelled && !cached) {
-					setError("Could not load badge.");
-					setLoading(false);
-				} else if (!cancelled) {
-					setLoading(false);
+				if (!cancelled) {
+					if (cached) {
+						setLoading(false);
+					} else {
+						setError("Could not load badge.");
+						setLoading(false);
+					}
 				}
 			}
 		})();
