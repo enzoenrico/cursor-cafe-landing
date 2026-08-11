@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 import { BadgeCard } from "@/components/badge-card";
 import {
@@ -21,6 +21,7 @@ type BadgeStudioProps = {
 };
 
 export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
+	const captureTargetRef = useRef<HTMLDivElement>(null);
 	const [badge, setBadge] = useState(initialBadge);
 	const [nameDraft, setNameDraft] = useState(initialBadge.name);
 	const [backgroundKey, setBackgroundKey] = useState(0);
@@ -112,7 +113,7 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 
 	return (
 		<div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-8 lg:flex-row lg:items-start lg:justify-center">
-			<div className="w-full max-w-sm shrink-0">
+			<div ref={captureTargetRef} className="w-full max-w-sm shrink-0">
 				<BadgeCard
 					{...badgeProps}
 					className="animate-scale-in w-full pointer-events-auto"
@@ -223,7 +224,7 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 			<ExportVideoModal
 				open={isExportOpen}
 				onOpenChange={setIsExportOpen}
-				badgeProps={badgeProps}
+				captureTargetRef={captureTargetRef}
 				fileName={`badge-${badge.name.toLowerCase().replace(/\s+/g, "-")}`}
 			/>
 		</div>

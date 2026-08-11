@@ -1,26 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 
-import { BadgeCard, type BadgeCardProps } from "@/components/badge-card";
 import { Button } from "@/components/ui/button";
 import { downloadBlob, recordBadgeVideo } from "@/lib/video-export";
 
 type ExportVideoModalProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	badgeProps: Omit<BadgeCardProps, "cta" | "className">;
+	/** Live studio badge element that already has the animated WebGL background. */
+	captureTargetRef: RefObject<HTMLElement | null>;
 	fileName: string;
 };
 
 export function ExportVideoModal({
 	open,
 	onOpenChange,
-	badgeProps,
+	captureTargetRef,
 	fileName,
 }: ExportVideoModalProps) {
-	const badgeRef = useRef<HTMLDivElement>(null);
 	const recordingRef = useRef(false);
 	const previewUrlRef = useRef<string | null>(null);
 	const [mounted, setMounted] = useState(false);
@@ -56,7 +55,7 @@ export function ExportVideoModal({
 	}, [clearPreview, onOpenChange]);
 
 	const exportVideo = useCallback(async () => {
-		if (!badgeRef.current || recordingRef.current) return;
+		if (recordingRef.current) return;
 		recordingRef.current = true;
 		setIsRecording(true);
 		setError(null);
@@ -68,11 +67,13 @@ export function ExportVideoModal({
 				requestAnimationFrame(() => resolve());
 			});
 			await new Promise<void>((resolve) => {
-				window.setTimeout(() => resolve(), 250);
+				window.setTimeout(() => resolve(), 150);
 			});
 
-			const target = badgeRef.current;
-			if (!target) throw new Error("A prévia da badge ainda não está pronta.");
+			const target = captureTargetRef.current;
+			if (!target) {
+				throw new Error("A badge da tela ainda não está pronta para gravação.");
+			}
 
 			const blob = await recordBadgeVideo(target, {
 				durationMs: 2800,
@@ -95,13 +96,13 @@ export function ExportVideoModal({
 			recordingRef.current = false;
 			setIsRecording(false);
 		}
-	}, [clearPreview, fileName]);
+	}, [captureTargetRef, clearPreview, fileName]);
 
 	useEffect(() => {
 		if (!open) return;
 		const timer = window.setTimeout(() => {
 			void exportVideo();
-		}, 450);
+		}, 350);
 		return () => window.clearTimeout(timer);
 	}, [open, exportVideo]);
 
@@ -158,19 +159,13 @@ export function ExportVideoModal({
 						Exportar badge animada
 					</h2>
 					<p className="text-sm text-muted-foreground">
-						Grava o card completo — nome, tags, local, data de ativação e o
-						fundo animado — em um MP4 para compartilhar.
+						Gravando a badge ao vivo da tela — fundo animado, nome, tags e
+						dados — em um MP4 para compartilhar.
 					</p>
 				</div>
 
-				<div className="flex justify-center">
-					<div ref={badgeRef} className="w-full max-w-[260px]">
-						<BadgeCard {...badgeProps} className="w-full" />
-					</div>
-				</div>
-
 				{isRecording ? (
-					<div className="mt-4 space-y-2">
+					<div className="mt-2 space-y-2">
 						<div className="h-2 overflow-hidden rounded-full bg-secondary">
 							<div
 								className="h-full bg-primary transition-[width] duration-150"
@@ -186,13 +181,17 @@ export function ExportVideoModal({
 				{previewUrl ? (
 					<video
 						src={previewUrl}
-						className="mx-auto mt-4 max-h-64 w-full rounded-xl border border-white/10"
+						className="mx-auto mt-4 max-h-80 w-full rounded-xl border border-white/10"
 						autoPlay
 						loop
 						muted
 						playsInline
 						controls
 					/>
+				) : !isRecording ? (
+					<p className="mt-4 text-center text-sm text-muted-foreground">
+						A prévia aparece aqui depois da gravação.
+					</p>
 				) : null}
 
 				{error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}

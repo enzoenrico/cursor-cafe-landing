@@ -32,6 +32,140 @@ function toEven(value: number): number {
 	return rounded % 2 === 0 ? rounded : rounded + 1;
 }
 
+function wait(ms: number) {
+	return new Promise<void>((resolve) => {
+		window.setTimeout(resolve, ms);
+	});
+}
+
+function nextFrame(): Promise<void> {
+	return new Promise((resolve) => {
+		requestAnimationFrame(() => resolve());
+	});
+}
+
+/** Wait until the badge has at least one sized shader canvas ready to copy. */
+export async function waitForBadgeCanvases(
+	element: HTMLElement,
+	timeoutMs = 4000
+): Promise<void> {
+	const started = performance.now();
+	while (performance.now() - started < timeoutMs) {
+		const ready = [...element.querySelectorAll("canvas")].some((canvas) => {
+			const rect = canvas.getBoundingClientRect();
+			return canvas.width > 1 && canvas.height > 1 && rect.width > 1 && rect.height > 1;
+		});
+		if (ready) {
+			await nextFrame();
+			await nextFrame();
+			return;
+		}
+		await wait(50);
+	}
+	throw new Error(
+		"O fundo animado da badge ainda não carregou. Feche o modal e tente de novo."
+	);
+}
+
+async function drawWebGlCanvas(
+	ctx: CanvasRenderingContext2D,
+	source: HTMLCanvasElement,
+	x: number,
+	y: number,
+	w: number,
+	h: number
+): Promise<boolean> {
+	try {
+		if (typeof createImageBitmap === "function") {
+			const bitmap = await createImageBitmap(source);
+			ctx.drawImage(bitmap, x, y, w, h);
+			bitmap.close();
+			return true;
+		}
+	} catch {
+		// fall through to drawImage
+	}
+
+	try {
+		ctx.drawImage(source, x, y, w, h);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+type StyleSnapshot = {
+	node: HTMLElement;
+	backdropFilter: string;
+	webkitBackdropFilter: string;
+	background: string;
+	backgroundColor: string;
+	boxShadow: string;
+	visibility: string;
+};
+
+/**
+ * html-to-image often rasterizes backdrop-filter as an opaque panel that covers
+ * the WebGL background we already composited. Temporarily clear those styles
+ * on the live tree for the overlay snapshot, then restore.
+ */
+function withTransparentOverlayStyles<T>(
+	element: HTMLElement,
+	run: () => Promise<T>
+): Promise<T> {
+	const snapshots: StyleSnapshot[] = [];
+	const nodes = [element, ...element.querySelectorAll<HTMLElement>("*")];
+
+	for (const node of nodes) {
+		snapshots.push({
+			node,
+			backdropFilter: node.style.backdropFilter,
+			webkitBackdropFilter: node.style.getPropertyValue(
+				"-webkit-backdrop-filter"
+			),
+			background: node.style.background,
+			backgroundColor: node.style.backgroundColor,
+			boxShadow: node.style.boxShadow,
+			visibility: node.style.visibility,
+		});
+
+		node.style.backdropFilter = "none";
+		node.style.setProperty("-webkit-backdrop-filter", "none");
+
+		if (node.getAttribute("data-slot") === "card" || node === element) {
+			node.style.background = "transparent";
+			node.style.backgroundColor = "transparent";
+			node.style.boxShadow = "none";
+		}
+
+		// Hide shader trees so they aren't painted as blank/opaque overlays.
+		if (
+			node.getAttribute("aria-hidden") === "true" &&
+			(node.querySelector("canvas") || node.querySelector("img"))
+		) {
+			node.style.visibility = "hidden";
+		}
+	}
+
+	return run().finally(() => {
+		for (const snap of snapshots) {
+			snap.node.style.backdropFilter = snap.backdropFilter;
+			if (snap.webkitBackdropFilter) {
+				snap.node.style.setProperty(
+					"-webkit-backdrop-filter",
+					snap.webkitBackdropFilter
+				);
+			} else {
+				snap.node.style.removeProperty("-webkit-backdrop-filter");
+			}
+			snap.node.style.background = snap.background;
+			snap.node.style.backgroundColor = snap.backgroundColor;
+			snap.node.style.boxShadow = snap.boxShadow;
+			snap.node.style.visibility = snap.visibility;
+		}
+	});
+}
+
 /**
  * Capture one frame of the full badge card:
  * 1) animated shader canvases as the background
@@ -41,6 +175,8 @@ async function captureFrame(
 	element: HTMLElement,
 	pixelRatio: number
 ): Promise<HTMLCanvasElement> {
+	await nextFrame();
+
 	const rect = element.getBoundingClientRect();
 	const width = toEven(rect.width * pixelRatio);
 	const height = toEven(rect.height * pixelRatio);
@@ -58,45 +194,50 @@ async function captureFrame(
 		...element.querySelectorAll("canvas"),
 	] as HTMLCanvasElement[];
 
+	let drewBackground = false;
+
 	// 1) Animated shader layer (behind the card chrome)
 	for (const source of glCanvases) {
 		const sourceRect = source.getBoundingClientRect();
 		if (sourceRect.width < 1 || sourceRect.height < 1) continue;
+		if (source.width < 1 || source.height < 1) continue;
 		const x = (sourceRect.left - rect.left) * pixelRatio;
 		const y = (sourceRect.top - rect.top) * pixelRatio;
 		const w = Math.max(1, sourceRect.width * pixelRatio);
 		const h = Math.max(1, sourceRect.height * pixelRatio);
-		try {
-			ctx.drawImage(source, x, y, w, h);
-		} catch {
-			// tainted / lost context — skip this canvas for the frame
-		}
+		const ok = await drawWebGlCanvas(ctx, source, x, y, w, h);
+		drewBackground = drewBackground || ok;
+	}
+
+	if (!drewBackground) {
+		console.warn(
+			"Nenhum canvas de shader foi copiado neste frame; o fundo pode ficar preto."
+		);
 	}
 
 	// 2) Card chrome + text on top (name, tags, location, activated, punch, scrims)
-	//    Shader canvases are filtered out so they don't cover the overlay.
 	try {
-		const domFrame = await toCanvas(element, {
-			pixelRatio,
-			cacheBust: true,
-			quality: 1,
-			filter: (node) => {
-				if (!(node instanceof HTMLElement)) return true;
-				return !isShaderNode(node);
-			},
-			style: {
-				backgroundColor: "transparent",
-			},
-		});
+		const domFrame = await withTransparentOverlayStyles(element, () =>
+			toCanvas(element, {
+				pixelRatio,
+				cacheBust: true,
+				quality: 1,
+				filter: (node) => {
+					if (!(node instanceof HTMLElement)) return true;
+					return !isShaderNode(node);
+				},
+				style: {
+					backgroundColor: "transparent",
+					backdropFilter: "none",
+				},
+			})
+		);
 		ctx.drawImage(domFrame, 0, 0, width, height);
 	} catch (err) {
-		console.error("Falha ao capturar overlay da badge; usando fallback de texto", err);
-		const scrim = ctx.createLinearGradient(0, 0, 0, height);
-		scrim.addColorStop(0, "rgba(0,0,0,0.28)");
-		scrim.addColorStop(0.45, "rgba(0,0,0,0.18)");
-		scrim.addColorStop(1, "rgba(0,0,0,0.55)");
-		ctx.fillStyle = scrim;
-		ctx.fillRect(0, 0, width, height);
+		console.error(
+			"Falha ao capturar overlay da badge; usando fallback de texto",
+			err
+		);
 		drawTextFallback(ctx, element, width, height, pixelRatio);
 	}
 
@@ -121,8 +262,8 @@ function drawTextFallback(
 	const labels = [...element.querySelectorAll(".tracking-widest")].map((n) =>
 		(n.textContent || "").trim()
 	);
-	const values = [...element.querySelectorAll(".text-sm.font-medium")].map((n) =>
-		(n.textContent || "").trim()
+	const values = [...element.querySelectorAll(".text-sm.font-medium")].map(
+		(n) => (n.textContent || "").trim()
 	);
 
 	const pad = 24 * pixelRatio;
@@ -182,12 +323,16 @@ async function recordWithMediabunny(
 ): Promise<Blob> {
 	const canEncode = await canEncodeVideo("avc");
 	if (!canEncode) {
-		throw new Error("Este navegador não suporta gravação de vídeo MP4 (H.264).");
+		throw new Error(
+			"Este navegador não suporta gravação de vídeo MP4 (H.264)."
+		);
 	}
 
 	const { durationMs, fps, pixelRatio, onProgress } = options;
 	const frameCount = Math.max(1, Math.round((durationMs / 1000) * fps));
 	const frameDuration = 1 / fps;
+
+	await waitForBadgeCanvases(element);
 
 	const first = await captureFrame(element, pixelRatio);
 	const canvas = document.createElement("canvas");
@@ -269,6 +414,8 @@ async function recordWithMediaRecorderMp4(
 	const frameCount = Math.max(1, Math.round((durationMs / 1000) * fps));
 	const frameDelay = 1000 / fps;
 
+	await waitForBadgeCanvases(element);
+
 	const first = await captureFrame(element, pixelRatio);
 	const canvas = document.createElement("canvas");
 	canvas.width = first.width;
@@ -335,7 +482,10 @@ export async function recordBadgeVideo(
 	try {
 		return await recordWithMediabunny(element, resolved);
 	} catch (primaryError) {
-		console.warn("Exportação MP4 via WebCodecs falhou, tentando MediaRecorder", primaryError);
+		console.warn(
+			"Exportação MP4 via WebCodecs falhou, tentando MediaRecorder",
+			primaryError
+		);
 		try {
 			return await recordWithMediaRecorderMp4(element, resolved);
 		} catch (fallbackError) {
@@ -352,10 +502,4 @@ export function downloadBlob(blob: Blob, filename: string) {
 	link.download = filename;
 	link.click();
 	URL.revokeObjectURL(url);
-}
-
-function wait(ms: number) {
-	return new Promise<void>((resolve) => {
-		window.setTimeout(resolve, ms);
-	});
 }
