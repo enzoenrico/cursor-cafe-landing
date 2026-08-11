@@ -55,13 +55,13 @@ export function Countdown() {
 	if (!mounted) {
 		return (
 			<div className="flex items-center justify-center gap-2 sm:gap-4 font-mono text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight">
-				<CountdownBlock value="--" label="days" />
+				<CountdownBlock value="--" label="dias" />
 				<span className="text-muted-foreground">:</span>
-				<CountdownBlock value="--" label="hours" />
+				<CountdownBlock value="--" label="horas" />
 				<span className="text-muted-foreground">:</span>
 				<CountdownBlock value="--" label="min" />
 				<span className="text-muted-foreground">:</span>
-				<CountdownBlock value="--" label="sec" />
+				<CountdownBlock value="--" label="seg" />
 			</div>
 		);
 	}
@@ -81,13 +81,13 @@ export function Countdown() {
 
 	return (
 		<div className="flex items-center justify-center gap-2 sm:gap-4 font-mono text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight">
-			<CountdownBlock value={pad(timeLeft.days)} label="days" />
+			<CountdownBlock value={pad(timeLeft.days)} label="dias" />
 			<span className="text-muted-foreground self-start mt-2 sm:mt-4">:</span>
-			<CountdownBlock value={pad(timeLeft.hours)} label="hours" />
+			<CountdownBlock value={pad(timeLeft.hours)} label="horas" />
 			<span className="text-muted-foreground self-start mt-2 sm:mt-4">:</span>
 			<CountdownBlock value={pad(timeLeft.minutes)} label="min" />
 			<span className="text-muted-foreground self-start mt-2 sm:mt-4">:</span>
-			<CountdownBlock value={pad(timeLeft.seconds)} label="sec" />
+			<CountdownBlock value={pad(timeLeft.seconds)} label="seg" />
 		</div>
 	);
 }

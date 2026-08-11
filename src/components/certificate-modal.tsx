@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { DitheringSectionBg } from "@/components/dithering-section-bg";
+import { BRAND } from "@/lib/branding";
 
 type CertificateModalProps = {
 	open: boolean;
@@ -59,9 +60,11 @@ export function CertificateModal({
 			pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
 
 			// Download the PDF
-			pdf.save(`certificado-cafe-cursor-${guestName.replace(/\s+/g, "-").toLowerCase()}.pdf`);
+			pdf.save(
+				`certificado-cursor-alem-do-codigo-${guestName.replace(/\s+/g, "-").toLowerCase()}.pdf`
+			);
 		} catch (error) {
-			console.error("Failed to download certificate:", error);
+			console.error("Falha ao baixar o certificado:", error);
 		} finally {
 			setIsDownloading(false);
 		}
@@ -74,7 +77,7 @@ export function CertificateModal({
 				<DialogHeader className="relative z-10">
 					<DialogTitle>Certificado de Participação</DialogTitle>
 					<DialogDescription>
-						Baixe seu certificado oficial de participação no Cafe Cursor Curitiba.
+						Baixe seu certificado oficial de participação no {BRAND.namePt}.
 					</DialogDescription>
 				</DialogHeader>
 
@@ -125,11 +128,14 @@ export function CertificateModal({
 								</p>
 
 								<p className="text-xl sm:text-2xl font-bold text-neutral-800 tracking-wide">
-									CAFE CURSOR CURITIBA
+									{BRAND.namePt.toUpperCase()}
+								</p>
+								<p className="text-sm text-neutral-500 tracking-wide uppercase">
+									{BRAND.nameEn}
 								</p>
 
 								<p className="text-sm text-neutral-600">
-									realizado em <strong>27 de Janeiro de 2026</strong>
+									realizado em <strong>{BRAND.eventDateLabel}</strong>
 								</p>
 
 								<p className="text-sm text-neutral-600">

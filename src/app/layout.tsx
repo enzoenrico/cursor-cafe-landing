@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { BRAND } from "@/lib/branding";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -13,23 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Cursor Cafe — Curitiba, Jan 30 2026",
-	description:
-		"Join us at Cafe Cursor in Curitiba, Paraná! A community meetup for Cursor enthusiasts at Manana Café Bigorrilho.",
+	title: `${BRAND.namePt} — Curitiba, ${BRAND.eventDateLabel}`,
+	description: `Participe do ${BRAND.namePt} em Curitiba, Paraná! Um encontro da comunidade Cursor no Manana Cafés Bigorrilho.`,
 	icons: {
 		icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
 	},
 	openGraph: {
-		title: "Cursor Cafe — Curitiba, Jan 30 2026",
-		description:
-			"Join us at Cafe Cursor in Curitiba, Paraná! A community meetup for Cursor enthusiasts at Manana Café Bigorrilho.",
+		title: `${BRAND.namePt} — Curitiba`,
+		description: `Participe do ${BRAND.namePt} em Curitiba, Paraná! Um encontro da comunidade Cursor no Manana Cafés Bigorrilho.`,
 		type: "website",
+		locale: "pt_BR",
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Cursor Cafe — Curitiba, Jan 30 2026",
-		description:
-			"Join us at Cafe Cursor in Curitiba, Paraná! A community meetup for Cursor enthusiasts.",
+		title: `${BRAND.namePt} — Curitiba`,
+		description: `Participe do ${BRAND.namePt} em Curitiba, Paraná! Um encontro da comunidade Cursor.`,
 	},
 };
 
@@ -39,7 +38,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className="dark">
+		<html lang="pt-BR" className="dark">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>

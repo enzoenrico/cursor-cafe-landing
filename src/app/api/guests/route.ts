@@ -4,7 +4,7 @@ export async function GET() {
 	const encoded = process.env.GUESTS_CSV;
 	if (!encoded) {
 		return NextResponse.json(
-			{ error: "Guests data not configured" },
+			{ error: "Dados de convidados não configurados" },
 			{ status: 503 }
 		);
 	}

@@ -26,9 +26,12 @@ export function HeroSection() {
 					<SiteHeader className="mb-6" />
 
 					{/* Title */}
-					<h1 className="animate-fade-up delay-100 text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight">
-						<span className="text-primary">Cafe </span>
-						<span className="text-foreground">Cursor</span>
+					<p className="animate-fade-up delay-100 text-xs tracking-[0.3em] text-muted-foreground uppercase">
+						Cursor Beyond Coding
+					</p>
+					<h1 className="animate-fade-up delay-100 mt-3 text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight">
+						<span className="text-primary">Cursor </span>
+						<span className="text-foreground">Além do Código</span>
 					</h1>
 
 					{/* Location */}
