@@ -25,15 +25,25 @@ Open [http://localhost:3000/host](http://localhost:3000/host), create a station,
 
 ## Deploy on Vercel
 
+### One-click (standalone Badge Station project)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fenzoenrico%2Fcursor-cafe-landing&root-directory=badge-station&project-name=badge-station&repository-name=badge-station)
+
+Or import the existing repo into a **new** Vercel project and set **Root Directory** to `badge-station` before deploying:
+
+https://vercel.com/new/import?s=https://github.com/enzoenrico/cursor-cafe-landing
+
 ### Option A — same GitHub repo, separate project (recommended)
 
-1. Create a **new** Vercel project from this repository (do not reuse the landing-site project)
+1. Create a **new** Vercel project from this repository (do not reuse the landing-site / `curitiba-cursor` project)
 2. In project settings, set **Root Directory** to `badge-station` **before the first deploy**
 3. Framework: Next.js (auto)
 4. Install/build commands can stay default (`pnpm install` / `pnpm run build`)
 5. Deploy
 
 If Root Directory is left empty, Vercel builds `cursor-cafe-landing` instead and the deploy will fail or ship the wrong app.
+
+Confirm in the build log that the package name is `badge-station@0.1.0`, not `cursor-cafe-landing`.
 
 ### Option B — extract to its own repo
 
