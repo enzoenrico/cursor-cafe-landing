@@ -48,11 +48,11 @@ export function SiteHeader({ className }: { className?: string }) {
 				>
 					<HeaderLink href="/">
 						<HomeIcon className="size-4" />
-						<p >Home</p>
+						<p>Início</p>
 					</HeaderLink>
 					<HeaderLink href="/badge">
 						<BadgeIcon className="size-4" />
-						<p >Badge</p>
+						<p>Badge</p>
 					</HeaderLink>
 				</nav>
 			</div>

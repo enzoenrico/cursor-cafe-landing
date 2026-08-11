@@ -32,7 +32,7 @@ interface Status {
 
 const PhotoUpload = ({
 	scriptUrl,
-	buttonText = "📷 Upload Photos",
+	buttonText = "Adicionar suas fotos",
 	allowMultiple = true,
 	maxFiles = 10,
 	onUploadComplete = null,
@@ -54,7 +54,7 @@ const PhotoUpload = ({
 
 		if (files.length > maxFiles) {
 			setStatus({
-				message: `Please select no more than ${maxFiles} files`,
+				message: `Selecione no máximo ${maxFiles} arquivos`,
 				type: "error",
 			});
 			return;
@@ -92,22 +92,22 @@ const PhotoUpload = ({
 		// Show result message
 		if (errorCount === 0) {
 			setStatus({
-				message: `✓ Successfully uploaded ${successCount} photo(s)!`,
+				message: `✓ ${successCount} foto(s) enviada(s) com sucesso!`,
 				type: "success",
 			});
 			onUploadComplete?.(uploadedFiles);
 		} else if (successCount > 0) {
 			setStatus({
-				message: `⚠ Uploaded ${successCount} photo(s), ${errorCount} failed`,
+				message: `⚠ ${successCount} foto(s) enviada(s), ${errorCount} falhou(aram)`,
 				type: "info",
 			});
 			onUploadComplete?.(uploadedFiles);
 		} else {
 			setStatus({
-				message: `✗ Upload failed. Please try again.`,
+				message: "✗ Falha no envio. Tente novamente.",
 				type: "error",
 			});
-			onUploadError?.(new Error("All uploads failed"));
+			onUploadError?.(new Error("Todos os envios falharam"));
 		}
 
 		// Clear file input
@@ -125,7 +125,7 @@ const PhotoUpload = ({
 					// Convert to base64
 					const result = e.target?.result;
 					if (typeof result !== "string") {
-						reject(new Error("Failed to read file as string"));
+						reject(new Error("Não foi possível ler o arquivo"));
 						return;
 					}
 					const base64Data = result.split(",")[1];
@@ -146,14 +146,14 @@ const PhotoUpload = ({
 					if (uploadResult.status === "success") {
 						resolve(uploadResult);
 					} else {
-						reject(new Error(uploadResult.message ?? "Upload failed"));
+						reject(new Error(uploadResult.message ?? "Falha no envio"));
 					}
 				} catch (error) {
 					reject(error);
 				}
 			};
 
-			reader.onerror = () => reject(new Error("Failed to read file"));
+			reader.onerror = () => reject(new Error("Falha ao ler o arquivo"));
 			reader.readAsDataURL(file);
 		});
 	};

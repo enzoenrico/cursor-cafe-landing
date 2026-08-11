@@ -30,7 +30,7 @@ export function ShareBadgeModal({
 	const [isDownloading, setIsDownloading] = useState(false);
 
 	const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-	const shareText = `Check out my Cursor Café badge! 🎉`;
+	const shareText = `Olha minha badge do Cursor Além do Código! 🎉`;
 
 	const shareOnLinkedIn = useCallback(() => {
 		const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
@@ -54,11 +54,11 @@ export function ShareBadgeModal({
 			});
 
 			const link = document.createElement("a");
-			link.download = `cursor-cafe-badge-${badgeProps.name}.png`;
+			link.download = `cursor-alem-do-codigo-badge-${badgeProps.name}.png`;
 			link.href = dataUrl;
 			link.click();
 		} catch (error) {
-			console.error("Failed to download badge:", error);
+			console.error("Falha ao baixar a badge:", error);
 		} finally {
 			setIsDownloading(false);
 		}

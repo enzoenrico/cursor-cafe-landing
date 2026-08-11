@@ -10,8 +10,11 @@ export function SiteFooter() {
 					{/* Event Info - Large Column */}
 					<div className="lg:col-span-2">
 						<h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
-							Cafe Cursor
+							Cursor Além do Código
 						</h2>
+						<p className="text-sm tracking-[0.2em] text-white/50 uppercase mb-3">
+							Cursor Beyond Coding
+						</p>
 						<p className="text-lg sm:text-xl text-white/80 mb-6 leading-relaxed">
 							Comunidade de desenvolvedores, designers e project managers em Curitiba, Paraná.
 						</p>
@@ -46,7 +49,7 @@ export function SiteFooter() {
 								className="flex items-center gap-2 text-white/80 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-colors font-medium"
 							>
 								<BadgeIcon className="size-4" />
-								Badge e Certificado
+								Badge e certificado
 							</Link>
 							<a
 								href="https://cursor.com"
@@ -89,7 +92,7 @@ export function SiteFooter() {
 				{/* Bottom Bar */}
 				<div className="mt-12 pt-8 border-t border-white/10">
 					<p className="text-sm text-white/60 text-center">
-						© 2026 Cafe Cursor Curitiba. Todos os direitos reservados.
+						© 2026 Cursor Além do Código · Curitiba. Todos os direitos reservados.
 					</p>
 				</div>
 			</div>
