@@ -84,7 +84,6 @@ async function captureFrame(
 			pixelRatio,
 			cacheBust: true,
 			quality: 1,
-			backgroundColor: null,
 			filter: (node) => {
 				if (!(node instanceof HTMLElement)) return true;
 				return !isShaderNode(node);
