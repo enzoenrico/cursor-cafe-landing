@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { PageShell } from "@/components/page-shell";
 
 export default function HomePage() {
@@ -17,12 +15,13 @@ export default function HomePage() {
 					name and style, then share it as a video of the live badge.
 				</p>
 				<div className="mt-8">
-					<Link
+					{/* Plain anchor avoids client-nav edge cases on cold loads */}
+					<a
 						href="/host"
-						className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+						className="relative z-20 inline-flex h-11 min-w-[14rem] items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
 					>
 						Open host QR station
-					</Link>
+					</a>
 				</div>
 			</main>
 		</PageShell>
