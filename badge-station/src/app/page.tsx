@@ -15,12 +15,18 @@ export default function HomePage() {
 					Escaneie um QR code, receba sua badge animada, personalize o nome e o
 					estilo e compartilhe um vídeo da badge ao vivo.
 				</p>
-				<div className="mt-8">
+				<div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
 					<a
 						href="/host"
 						className="relative z-20 inline-flex h-11 min-w-[14rem] items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
 					>
 						Abrir estação com QR
+					</a>
+					<a
+						href="/raffle"
+						className="relative z-20 inline-flex h-11 min-w-[14rem] items-center justify-center rounded-md border border-white/15 bg-black/30 px-6 text-sm font-medium text-foreground transition-colors hover:bg-white/5"
+					>
+						Abrir sorteio Luma
 					</a>
 				</div>
 			</main>

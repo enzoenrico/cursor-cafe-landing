@@ -9,6 +9,8 @@ export const BRAND = {
 	defaultStationName: "Estação de Badge — Cursor Além do Código",
 	defaultLocation: "Curitiba, PR",
 	defaultGuestName: "Convidado",
+	lumaEventUrl: "https://luma.com/cursor-umd5",
+	lumaEventId: "evt-EWoOevOW0uG6LTM",
 } as const;
 
 export function formatActivatedAt(date = new Date()): string {

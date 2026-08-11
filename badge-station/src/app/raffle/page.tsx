@@ -1,14 +1,14 @@
 import Link from "next/link";
 
-import { HostStation } from "@/components/host-station";
 import { PageShell } from "@/components/page-shell";
+import { RafflePanel } from "@/components/raffle-panel";
 import { BRAND } from "@/lib/branding";
 
-export default function HostPage() {
+export default function RafflePage() {
 	return (
 		<PageShell>
-			<main className="min-h-screen">
-				<div className="absolute top-4 left-4 z-20 flex items-center gap-4">
+			<main className="min-h-screen px-4 py-12 sm:px-6">
+				<div className="mb-8 flex items-center justify-between">
 					<Link
 						href="/"
 						className="text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -16,13 +16,13 @@ export default function HostPage() {
 						← {BRAND.namePt}
 					</Link>
 					<Link
-						href="/raffle"
+						href="/host"
 						className="text-sm text-muted-foreground transition-colors hover:text-foreground"
 					>
-						Sorteio
+						QR da estação
 					</Link>
 				</div>
-				<HostStation />
+				<RafflePanel />
 			</main>
 		</PageShell>
 	);
