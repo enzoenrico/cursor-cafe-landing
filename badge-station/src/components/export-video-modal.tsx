@@ -83,7 +83,7 @@ export function ExportVideoModal({
 			const url = URL.createObjectURL(blob);
 			previewUrlRef.current = url;
 			setPreviewUrl(url);
-			downloadBlob(blob, `${fileName}.webm`);
+			downloadBlob(blob, `${fileName}.mp4`);
 		} catch (err) {
 			console.error(err);
 			setError(
@@ -119,7 +119,9 @@ export function ExportVideoModal({
 		try {
 			const response = await fetch(previewUrl);
 			const blob = await response.blob();
-			const file = new File([blob], `${fileName}.webm`, { type: blob.type });
+			const file = new File([blob], `${fileName}.mp4`, {
+				type: blob.type || "video/mp4",
+			});
 			if (navigator.canShare?.({ files: [file] })) {
 				await navigator.share({
 					files: [file],
@@ -128,7 +130,7 @@ export function ExportVideoModal({
 				});
 				return;
 			}
-			downloadBlob(blob, `${fileName}.webm`);
+			downloadBlob(blob, `${fileName}.mp4`);
 		} catch (err) {
 			console.error(err);
 			setError("O compartilhamento foi cancelado ou não está disponível.");
@@ -157,7 +159,7 @@ export function ExportVideoModal({
 					</h2>
 					<p className="text-sm text-muted-foreground">
 						Grava o card completo — nome, tags, local, data de ativação e o
-						fundo animado — em um WebM para compartilhar.
+						fundo animado — em um MP4 para compartilhar.
 					</p>
 				</div>
 

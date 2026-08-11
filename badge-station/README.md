@@ -2,7 +2,7 @@
 
 Serviço standalone de badges do evento **Cursor Além do Código** (*Cursor Beyond Coding*).
 
-Convidados escaneiam o QR da estação no celular, recebem uma badge animada, definem o nome, personalizam o estilo e exportam um **vídeo WebM** da badge ao vivo.
+Convidados escaneiam o QR da estação no celular, recebem uma badge animada, definem o nome, personalizam o estilo e exportam um **vídeo MP4** da badge ao vivo.
 
 ## Recursos
 
@@ -74,4 +74,4 @@ Nenhuma variável de ambiente é necessária.
 - Tailwind CSS v4
 - Fundos animados `@paper-design/shaders-react`
 - QR com `qrcode.react`
-- Exportação de vídeo com `html-to-image` + `MediaRecorder`
+- Exportação de vídeo MP4 com `html-to-image` + Mediabunny (WebCodecs)

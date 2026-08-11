@@ -1,3 +1,11 @@
+import {
+	BufferTarget,
+	canEncodeVideo,
+	CanvasSource,
+	Mp4OutputFormat,
+	Output,
+	QUALITY_HIGH,
+} from "mediabunny";
 import { toCanvas } from "html-to-image";
 
 export type RecordBadgeVideoOptions = {
@@ -6,23 +14,6 @@ export type RecordBadgeVideoOptions = {
 	pixelRatio?: number;
 	onProgress?: (progress: number) => void;
 };
-
-function pickMimeType(): string {
-	const candidates = [
-		"video/webm;codecs=vp9",
-		"video/webm;codecs=vp8",
-		"video/webm",
-	];
-	for (const type of candidates) {
-		if (
-			typeof MediaRecorder !== "undefined" &&
-			MediaRecorder.isTypeSupported(type)
-		) {
-			return type;
-		}
-	}
-	return "";
-}
 
 function isShaderNode(node: HTMLElement): boolean {
 	if (node instanceof HTMLCanvasElement) return true;
@@ -36,6 +27,11 @@ function isShaderNode(node: HTMLElement): boolean {
 	return false;
 }
 
+function toEven(value: number): number {
+	const rounded = Math.max(2, Math.round(value));
+	return rounded % 2 === 0 ? rounded : rounded + 1;
+}
+
 /**
  * Capture one frame of the full badge card:
  * 1) animated shader canvases as the background
@@ -46,8 +42,8 @@ async function captureFrame(
 	pixelRatio: number
 ): Promise<HTMLCanvasElement> {
 	const rect = element.getBoundingClientRect();
-	const width = Math.max(1, Math.round(rect.width * pixelRatio));
-	const height = Math.max(1, Math.round(rect.height * pixelRatio));
+	const width = toEven(rect.width * pixelRatio);
+	const height = toEven(rect.height * pixelRatio);
 	const composite = document.createElement("canvas");
 	composite.width = width;
 	composite.height = height;
@@ -94,8 +90,7 @@ async function captureFrame(
 		});
 		ctx.drawImage(domFrame, 0, 0, width, height);
 	} catch (err) {
-		console.error("DOM badge overlay capture failed, drawing text fallback", err);
-		// Keep a readable scrim + text if DOM snapshot fails
+		console.error("Falha ao capturar overlay da badge; usando fallback de texto", err);
 		const scrim = ctx.createLinearGradient(0, 0, 0, height);
 		scrim.addColorStop(0, "rgba(0,0,0,0.28)");
 		scrim.addColorStop(0.45, "rgba(0,0,0,0.18)");
@@ -178,25 +173,99 @@ function roundRect(
 	ctx.closePath();
 }
 
-/**
- * Records the live badge DOM (full card + animated shader canvases) into a WebM video.
- */
-export async function recordBadgeVideo(
+async function recordWithMediabunny(
 	element: HTMLElement,
-	options: RecordBadgeVideoOptions = {}
+	options: Required<
+		Pick<RecordBadgeVideoOptions, "durationMs" | "fps" | "pixelRatio">
+	> &
+		Pick<RecordBadgeVideoOptions, "onProgress">
 ): Promise<Blob> {
-	if (typeof MediaRecorder === "undefined") {
-		throw new Error("MediaRecorder não está disponível neste navegador.");
+	const canEncode = await canEncodeVideo("avc");
+	if (!canEncode) {
+		throw new Error("Este navegador não suporta gravação de vídeo MP4 (H.264).");
 	}
 
-	const mimeType = pickMimeType();
+	const { durationMs, fps, pixelRatio, onProgress } = options;
+	const frameCount = Math.max(1, Math.round((durationMs / 1000) * fps));
+	const frameDuration = 1 / fps;
+
+	const first = await captureFrame(element, pixelRatio);
+	const canvas = document.createElement("canvas");
+	canvas.width = first.width;
+	canvas.height = first.height;
+	const ctx = canvas.getContext("2d");
+	if (!ctx) throw new Error("Não foi possível criar o contexto do canvas");
+
+	const target = new BufferTarget();
+	const output = new Output({
+		format: new Mp4OutputFormat({ fastStart: "in-memory" }),
+		target,
+	});
+
+	const videoSource = new CanvasSource(canvas, {
+		codec: "avc",
+		bitrate: QUALITY_HIGH,
+		keyFrameInterval: 1,
+		latencyMode: "quality",
+	});
+	output.addVideoTrack(videoSource);
+	await output.start();
+
+	ctx.drawImage(first, 0, 0);
+	await videoSource.add(0, frameDuration, { keyFrame: true });
+	onProgress?.(1 / frameCount);
+
+	for (let i = 1; i < frameCount; i++) {
+		// Pace roughly with realtime so shader animation has time to advance.
+		await wait(1000 / fps);
+		const frame = await captureFrame(element, pixelRatio);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+		await videoSource.add(i * frameDuration, frameDuration, {
+			keyFrame: i % Math.max(1, Math.round(fps)) === 0,
+		});
+		onProgress?.((i + 1) / frameCount);
+	}
+
+	videoSource.close();
+	await output.finalize();
+
+	const buffer = target.buffer;
+	if (!buffer || buffer.byteLength < 1) {
+		throw new Error("A gravação gerou um vídeo vazio.");
+	}
+
+	return new Blob([buffer], { type: "video/mp4" });
+}
+
+/**
+ * Fallback for browsers without WebCodecs H.264 encode (e.g. some Safari builds).
+ * Only used when MediaRecorder can emit a real MP4 container.
+ */
+async function recordWithMediaRecorderMp4(
+	element: HTMLElement,
+	options: Required<
+		Pick<RecordBadgeVideoOptions, "durationMs" | "fps" | "pixelRatio">
+	> &
+		Pick<RecordBadgeVideoOptions, "onProgress">
+): Promise<Blob> {
+	const mimeCandidates = [
+		"video/mp4;codecs=avc1.42E01E",
+		"video/mp4;codecs=avc1",
+		"video/mp4",
+	];
+	const mimeType =
+		typeof MediaRecorder !== "undefined"
+			? mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type))
+			: undefined;
+
 	if (!mimeType) {
-		throw new Error("Este navegador não suporta gravação de vídeo WebM.");
+		throw new Error(
+			"Este navegador não suporta gravação de vídeo MP4. Use Chrome, Edge ou Safari recente."
+		);
 	}
 
-	const durationMs = options.durationMs ?? 2800;
-	const fps = options.fps ?? 16;
-	const pixelRatio = options.pixelRatio ?? 1.5;
+	const { durationMs, fps, pixelRatio, onProgress } = options;
 	const frameCount = Math.max(1, Math.round((durationMs / 1000) * fps));
 	const frameDelay = 1000 / fps;
 
@@ -221,7 +290,7 @@ export async function recordBadgeVideo(
 	const stopped = new Promise<Blob>((resolve, reject) => {
 		recorder.onerror = () => reject(new Error("Falha no MediaRecorder"));
 		recorder.onstop = () => {
-			const blob = new Blob(chunks, { type: mimeType });
+			const blob = new Blob(chunks, { type: "video/mp4" });
 			if (blob.size < 1) {
 				reject(new Error("A gravação gerou um vídeo vazio."));
 				return;
@@ -232,14 +301,14 @@ export async function recordBadgeVideo(
 
 	recorder.start(100);
 	ctx.drawImage(first, 0, 0);
-	options.onProgress?.(1 / frameCount);
+	onProgress?.(1 / frameCount);
 
 	for (let i = 1; i < frameCount; i++) {
 		await wait(frameDelay);
 		const frame = await captureFrame(element, pixelRatio);
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
-		options.onProgress?.((i + 1) / frameCount);
+		onProgress?.((i + 1) / frameCount);
 	}
 
 	await wait(frameDelay);
@@ -247,6 +316,33 @@ export async function recordBadgeVideo(
 	for (const track of stream.getTracks()) track.stop();
 
 	return stopped;
+}
+
+/**
+ * Records the live badge DOM (full card + animated shader canvases) into an MP4 video.
+ */
+export async function recordBadgeVideo(
+	element: HTMLElement,
+	options: RecordBadgeVideoOptions = {}
+): Promise<Blob> {
+	const resolved = {
+		durationMs: options.durationMs ?? 2800,
+		fps: options.fps ?? 16,
+		pixelRatio: options.pixelRatio ?? 1.5,
+		onProgress: options.onProgress,
+	};
+
+	try {
+		return await recordWithMediabunny(element, resolved);
+	} catch (primaryError) {
+		console.warn("Exportação MP4 via WebCodecs falhou, tentando MediaRecorder", primaryError);
+		try {
+			return await recordWithMediaRecorderMp4(element, resolved);
+		} catch (fallbackError) {
+			if (primaryError instanceof Error) throw primaryError;
+			throw fallbackError;
+		}
+	}
 }
 
 export function downloadBlob(blob: Blob, filename: string) {
