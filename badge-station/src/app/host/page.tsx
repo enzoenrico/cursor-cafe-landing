@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HostStation } from "@/components/host-station";
 import { PageShell } from "@/components/page-shell";
+import { BRAND } from "@/lib/branding";
 
 export default function HostPage() {
 	return (
@@ -12,7 +13,7 @@ export default function HostPage() {
 						href="/"
 						className="text-sm text-muted-foreground transition-colors hover:text-foreground"
 					>
-						← Badge Station
+						← {BRAND.namePt}
 					</Link>
 				</div>
 				<HostStation />

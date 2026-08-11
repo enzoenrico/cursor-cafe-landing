@@ -20,7 +20,7 @@ function JoinStationInner() {
 	const stationId = params.stationId;
 	const claimedRef = useRef(false);
 	const [error, setError] = useState<string | null>(null);
-	const [status, setStatus] = useState("Claiming your badge…");
+	const [status, setStatus] = useState("Recebendo sua badge…");
 
 	useEffect(() => {
 		if (!stationId || claimedRef.current) return;
@@ -34,12 +34,12 @@ function JoinStationInner() {
 			try {
 				const existing = localStorage.getItem(existingKey);
 				if (existing) {
-					setStatus("Welcome back — opening your badge…");
+					setStatus("Bem-vindo de volta — abrindo sua badge…");
 					router.replace(`/badge/${existing}`);
 					return;
 				}
 			} catch {
-				// continue to claim
+				// continua para atribuir
 			}
 
 			let badge: BadgeRecord | null = null;
@@ -53,7 +53,7 @@ function JoinStationInner() {
 					badge = data.badge;
 				}
 			} catch {
-				// fall through to client assignment
+				// usa atribuição no cliente
 			}
 
 			if (!badge) {
@@ -65,21 +65,23 @@ function JoinStationInner() {
 			}
 
 			writeStoredBadge(badge);
-			setStatus("Badge assigned — opening studio…");
+			setStatus("Badge atribuída — abrindo o estúdio…");
 			router.replace(`/badge/${badge.id}`);
 		})().catch((err) => {
 			console.error(err);
-			setError("Could not assign a badge. Check your connection and try again.");
+			setError(
+				"Não foi possível atribuir uma badge. Verifique a conexão e tente de novo."
+			);
 		});
 	}, [router, searchParams, stationId]);
 
 	return (
 		<div className="w-full max-w-md space-y-4 rounded-[2rem] border border-white/10 bg-black/35 p-8 text-center backdrop-blur-xl">
 			<p className="text-xs tracking-[0.25em] text-muted-foreground uppercase">
-				QR check-in
+				Entrada por QR
 			</p>
 			<h1 className="text-3xl font-bold tracking-tight">
-				{error ? "Almost there" : "Assigning badge"}
+				{error ? "Quase lá" : "Atribuindo badge"}
 			</h1>
 			<p className="text-sm text-muted-foreground">{error ?? status}</p>
 			{error ? (
@@ -88,14 +90,14 @@ function JoinStationInner() {
 						onClick={() => {
 							claimedRef.current = false;
 							setError(null);
-							setStatus("Claiming your badge…");
+							setStatus("Recebendo sua badge…");
 							window.location.reload();
 						}}
 					>
-						Try again
+						Tentar de novo
 					</Button>
 					<Button asChild variant="secondary">
-						<Link href="/host">Go to host station</Link>
+						<Link href="/host">Ir para a estação</Link>
 					</Button>
 				</div>
 			) : (
@@ -114,7 +116,7 @@ export default function JoinStationPage() {
 				<Suspense
 					fallback={
 						<div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-black/35 p-8 text-center text-sm text-muted-foreground backdrop-blur-xl">
-							Claiming your badge…
+							Recebendo sua badge…
 						</div>
 					}
 				>

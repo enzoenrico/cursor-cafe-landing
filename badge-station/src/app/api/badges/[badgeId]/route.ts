@@ -14,7 +14,7 @@ export async function GET(_request: Request, context: RouteContext) {
 	const { badgeId } = await context.params;
 	const badge = getBadge(badgeId);
 	if (!badge) {
-		return NextResponse.json({ error: "Badge not found" }, { status: 404 });
+		return NextResponse.json({ error: "Badge não encontrada" }, { status: 404 });
 	}
 	return NextResponse.json({ badge });
 }
@@ -24,7 +24,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 	const payload = (await request.json().catch(() => ({}))) as UpdateBadgePayload;
 	const badge = updateBadge(badgeId, payload);
 	if (!badge) {
-		return NextResponse.json({ error: "Badge not found" }, { status: 404 });
+		return NextResponse.json({ error: "Badge não encontrada" }, { status: 404 });
 	}
 	return NextResponse.json({ badge });
 }

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { BRAND } from "@/lib/branding";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,16 +16,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Badge Station — Claim your event badge",
+	title: `Estação de Badge — ${BRAND.namePt}`,
 	description:
-		"Scan a QR code to claim an animated event badge. Customize it, reroll styles, and export a shareable video.",
+		"Escaneie um QR code para receber sua badge animada do evento. Personalize o nome, o estilo e exporte um vídeo para compartilhar.",
 	icons: {
 		icon: [{ url: "/favicon.ico" }],
 	},
 	openGraph: {
-		title: "Badge Station — Claim your event badge",
+		title: `Estação de Badge — ${BRAND.namePt}`,
 		description:
-			"Scan a QR code to claim an animated event badge. Customize it, reroll styles, and export a shareable video.",
+			"Escaneie um QR code para receber sua badge animada do evento. Personalize o nome, o estilo e exporte um vídeo para compartilhar.",
 		type: "website",
 	},
 };
@@ -34,7 +36,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className="dark">
+		<html lang="pt-BR" className="dark">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>

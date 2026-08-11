@@ -55,7 +55,7 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 				const data = (await response.json()) as { badge: BadgeRecord };
 				applyLocal(data.badge);
 			} catch {
-				// local badge remains the source of truth for serverless deploys
+				// a badge local continua valendo em deploys serverless
 			}
 		});
 	};
@@ -122,20 +122,20 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 			<div className="animate-fade-up delay-200 w-full max-w-md space-y-6 text-left">
 				<div>
 					<p className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
-						Your badge
+						Sua badge
 					</p>
 					<h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-						Make it yours
+						Deixe com a sua cara
 					</h1>
 					<p className="mt-2 text-sm text-muted-foreground">
-						Set your name, swap the animated style, then export a short video of
-						your live badge to share online.
+						Defina o nome, troque o estilo animado e exporte um vídeo curto da
+						sua badge para compartilhar.
 					</p>
 				</div>
 
 				<div className="space-y-2">
 					<label htmlFor="badge-name" className="text-sm font-medium">
-						Display name
+						Nome de exibição
 					</label>
 					<div className="flex gap-2">
 						<Input
@@ -149,7 +149,7 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 									saveName();
 								}
 							}}
-							placeholder="Your name"
+							placeholder="Seu nome"
 						/>
 						<Button
 							type="button"
@@ -157,19 +157,19 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 							onClick={saveName}
 							disabled={isPending || !nameDraft.trim()}
 						>
-							Save
+							Salvar
 						</Button>
 					</div>
 				</div>
 
 				<div className="space-y-3">
-					<div className="text-sm font-medium">Style</div>
+					<div className="text-sm font-medium">Estilo</div>
 					<div className="grid grid-cols-2 gap-2">
 						{(
 							[
-								["liquid", "Liquid"],
-								["abstract", "Abstract"],
-								["molten", "Molten"],
+								["liquid", "Líquido"],
+								["abstract", "Abstrato"],
+								["molten", "Fundido"],
 								["dithering", "Dither"],
 							] as const
 						).map(([id, label]) => (
@@ -191,7 +191,7 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 							onClick={rerollStyle}
 							disabled={isPending}
 						>
-							Reroll style
+							Trocar estilo
 						</Button>
 						<Button
 							type="button"
@@ -199,7 +199,7 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 							onClick={randomizeSameStyle}
 							disabled={isPending}
 						>
-							Shuffle colors
+							Embaralhar cores
 						</Button>
 					</div>
 				</div>
@@ -211,11 +211,11 @@ export function BadgeStudio({ initialBadge }: BadgeStudioProps) {
 					onClick={() => setIsExportOpen(true)}
 					data-testid="export-video-button"
 				>
-					Export animated video
+					Exportar vídeo animado
 				</Button>
 
 				<p className="text-xs text-muted-foreground">
-					Badge ID{" "}
+					ID da badge{" "}
 					<span className="font-mono text-foreground/80">{badge.id}</span>
 				</p>
 			</div>

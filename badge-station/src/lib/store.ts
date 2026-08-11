@@ -3,6 +3,7 @@ import {
 	type BadgeBackgroundId,
 } from "@/components/badge-backgrounds/registry";
 import type { BadgeRecord, StationRecord, UpdateBadgePayload } from "@/lib/badge-types";
+import { BRAND, formatActivatedAt } from "@/lib/branding";
 import { createBadgeId, createStationCode } from "@/lib/ids";
 
 type StoreShape = {
@@ -24,14 +25,6 @@ function getStore(): StoreShape {
 	return globalForStore.__badgeStationStore;
 }
 
-function formatActivatedAt(date = new Date()): string {
-	return date.toLocaleDateString("en-US", {
-		month: "short",
-		day: "numeric",
-		year: "numeric",
-	});
-}
-
 export function createStation(input?: {
 	name?: string;
 	eventLabel?: string;
@@ -40,9 +33,9 @@ export function createStation(input?: {
 	const store = getStore();
 	const station: StationRecord = {
 		id: createStationCode(),
-		name: input?.name?.trim() || "Event Badge Station",
-		eventLabel: input?.eventLabel?.trim() || "CAFE CURSOR",
-		location: input?.location?.trim() || "Curitiba, PR",
+		name: input?.name?.trim() || BRAND.defaultStationName,
+		eventLabel: input?.eventLabel?.trim() || BRAND.shortTag,
+		location: input?.location?.trim() || BRAND.defaultLocation,
 		createdAt: new Date().toISOString(),
 		claimCount: 0,
 	};
@@ -71,8 +64,8 @@ export function claimBadge(stationId: string): BadgeRecord | null {
 	const badge: BadgeRecord = {
 		id: createBadgeId(),
 		stationId: station.id,
-		name: `Guest ${station.claimCount + 1}`,
-		tags: [station.eventLabel, "EVENT"],
+		name: `${BRAND.defaultGuestName} ${station.claimCount + 1}`,
+		tags: [station.eventLabel, BRAND.eventTag],
 		location: station.location,
 		activatedAt: formatActivatedAt(now),
 		backgroundId,
@@ -122,13 +115,13 @@ export function updateBadge(
 	return next;
 }
 
-/** Ensure a demo station exists for local/dev convenience. */
+/** Garante uma estação demo no ambiente local/dev. */
 export function ensureDemoStation(): StationRecord {
 	const existing = listStations()[0];
 	if (existing) return existing;
 	return createStation({
-		name: "Cafe Cursor Badge Desk",
-		eventLabel: "CAFE CURSOR",
-		location: "Curitiba, PR",
+		name: BRAND.defaultStationName,
+		eventLabel: BRAND.shortTag,
+		location: BRAND.defaultLocation,
 	});
 }

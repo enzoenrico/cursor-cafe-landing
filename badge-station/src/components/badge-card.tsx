@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { BRAND } from "@/lib/branding";
 
 export type BadgeCardProps = {
 	name: string;
@@ -60,11 +61,11 @@ export function BadgeCard({
 						</div>
 
 						<div className="relative h-14 w-14 shrink-0 rounded-full border border-white/25 bg-black/25">
-							<div className="absolute inset-0 grid place-items-center text-[10px] font-medium tracking-wide text-white/75">
+							<div className="absolute inset-0 grid place-items-center text-[9px] font-medium tracking-wide text-white/75">
 								<div className="-rotate-12 leading-tight text-start">
-									<div>Cafe</div>
-									<div>Cursor</div>
-									<div className="text-white/55">2026</div>
+									<div>{BRAND.sealLines[0]}</div>
+									<div>{BRAND.sealLines[1]}</div>
+									<div className="text-white/55">{BRAND.sealLines[2]}</div>
 								</div>
 							</div>
 						</div>
@@ -80,12 +81,11 @@ export function BadgeCard({
 					</div>
 				</div>
 
-				{/* down content */}
 				<div className="flex flex-col items-start justify-between ">
 					<div className="mt-6 grid grid-cols-2 gap-6 ">
 						<div className="space-y-1 flex flex-col items-start justify-start">
 							<div className="text-[11px] tracking-widest text-white/65">
-								LOCATION
+								LOCAL
 							</div>
 							<div className="text-sm font-medium text-white/95">
 								{location}
@@ -94,14 +94,13 @@ export function BadgeCard({
 
 						<div className="space-y-1 flex flex-col items-start justify-start">
 							<div className="text-[11px] tracking-widest text-white/65">
-								ACTIVATED
+								ATIVADA EM
 							</div>
 							<div className="text-sm font-medium text-white/95">
 								{activatedAt}
 							</div>
 						</div>
 					</div>
-
 				</div>
 			</div>
 
@@ -109,4 +108,3 @@ export function BadgeCard({
 		</Card>
 	);
 }
-

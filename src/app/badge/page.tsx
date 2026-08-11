@@ -23,6 +23,7 @@ import {
 	getNextBadgeBackgroundId,
 	generateBackgroundConfig,
 } from "@/components/badge-backgrounds/registry";
+import { BRAND } from "@/lib/branding";
 
 type Guest = {
 	name: string;
@@ -93,10 +94,10 @@ export default function CreditosPage() {
 
 	// Badge configuration - shared between display and share modal
 	const badgeConfig = {
-		name: guest?.first_name || guest?.name || "Convidado",
-		tags: ["CAFE CURSOR", "CURITIBA"] as const,
-		location: "Curitiba, PR",
-		activatedAt: "Jan 27, 2026",
+		name: guest?.first_name || guest?.name || BRAND.defaultGuestName,
+		tags: [BRAND.shortTag, BRAND.eventTag] as const,
+		location: BRAND.defaultLocation,
+		activatedAt: BRAND.activatedAtLabel,
 	};
 
 	return (
@@ -125,13 +126,17 @@ export default function CreditosPage() {
 					<div className="flex flex-col items-center justify-center gap-8">
 						<div className="animate-fade-up delay-100 text-center">
 							<h1 className="animate-fade-up delay-100 text-4xl sm:text-6xl font-bold tracking-tight">
-								Sua badge do Cafe Cursor Curitiba
+								Sua badge do {BRAND.namePt}
 							</h1>
 
 							<p className="animate-fade-up delay-200 mt-4 text-base sm:text-lg text-muted-foreground">
-								Com o seu e-mail, você pode gerar sua badge do Cafe Cursor Curitiba, para compartilhar e sempre lembrar desse momento incrível!
+								Com o seu e-mail, você pode gerar sua badge do {BRAND.namePt},
+								para compartilhar e sempre lembrar desse momento incrível!
 							</p>
-							<p className="animate-fade-up delay-200 mt-4 text-sm text-muted-foreground">Badge elegivél à aqueles que tiveram sua presença validada pelos organizadores.</p>
+							<p className="animate-fade-up delay-200 mt-4 text-sm text-muted-foreground">
+								Badge elegível para quem teve a presença validada pelos
+								organizadores.
+							</p>
 						</div>
 
 						<div className="animate-scale-in delay-300  mx-auto w-full max-w-sm  flex items-center justify-center">
@@ -179,7 +184,7 @@ export default function CreditosPage() {
 
 												try {
 													const response = await fetch("/api/guests");
-													if (!response.ok) throw new Error("Failed to fetch");
+													if (!response.ok) throw new Error("Falha ao buscar");
 													const csvText = await response.text();
 
 													const lines = csvText.split("\n");
@@ -214,7 +219,7 @@ export default function CreditosPage() {
 														}
 													}
 
-													setError("Email não confirmado no evento.");
+													setError("E-mail não confirmado no evento.");
 												} catch (err) {
 													setError("Erro ao verificar e-mail. Tente novamente.");
 													console.error(err);
@@ -228,7 +233,7 @@ export default function CreditosPage() {
 													htmlFor="email"
 													className="text-sm font-medium text-foreground"
 												>
-													Email
+													E-mail
 												</label>
 												<input
 													id="email"
@@ -255,7 +260,7 @@ export default function CreditosPage() {
 												className="w-full"
 												disabled={isLoading || !email}
 											>
-												{isLoading ? "Verificando..." : "Confirmar email"}
+												{isLoading ? "Verificando..." : "Confirmar e-mail"}
 											</Button>
 										</form>
 									</CardContent>

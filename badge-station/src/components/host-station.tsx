@@ -6,6 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { StationRecord } from "@/lib/badge-types";
+import { BRAND } from "@/lib/branding";
 import { createStationCode } from "@/lib/ids";
 
 const HOST_STATION_KEY = "badge-station:host-station";
@@ -42,9 +43,9 @@ function makeLocalStation(input: {
 }): StationRecord {
 	return {
 		id: createStationCode(),
-		name: input.name.trim() || "Event Badge Station",
-		eventLabel: input.eventLabel.trim() || "CAFE CURSOR",
-		location: input.location.trim() || "Curitiba, PR",
+		name: input.name.trim() || BRAND.defaultStationName,
+		eventLabel: input.eventLabel.trim() || BRAND.shortTag,
+		location: input.location.trim() || BRAND.defaultLocation,
 		createdAt: new Date().toISOString(),
 		claimCount: 0,
 	};
@@ -52,9 +53,9 @@ function makeLocalStation(input: {
 
 export function HostStation() {
 	const [station, setStation] = useState<StationRecord | null>(null);
-	const [name, setName] = useState("Cafe Cursor Badge Desk");
-	const [eventLabel, setEventLabel] = useState("CAFE CURSOR");
-	const [location, setLocation] = useState("Curitiba, PR");
+	const [name, setName] = useState<string>(BRAND.defaultStationName);
+	const [eventLabel, setEventLabel] = useState<string>(BRAND.shortTag);
+	const [location, setLocation] = useState<string>(BRAND.defaultLocation);
 	const [origin, setOrigin] = useState("");
 	const [isCreating, setIsCreating] = useState(false);
 	const [copied, setCopied] = useState(false);
@@ -75,11 +76,10 @@ export function HostStation() {
 				setEventLabel(cached.eventLabel);
 				setLocation(cached.location);
 			} else {
-				// First visit: show a QR immediately so the desk works with one open.
 				const created = makeLocalStation({
-					name: "Cafe Cursor Badge Desk",
-					eventLabel: "CAFE CURSOR",
-					location: "Curitiba, PR",
+					name: BRAND.defaultStationName,
+					eventLabel: BRAND.shortTag,
+					location: BRAND.defaultLocation,
 				});
 				setStation(created);
 				writeHostStation(created);
@@ -92,7 +92,7 @@ export function HostStation() {
 						location: created.location,
 					}),
 				}).catch(() => {
-					// local station already works without the API
+					// a estação local já funciona sem a API
 				});
 			}
 			setHydrated(true);
@@ -110,7 +110,6 @@ export function HostStation() {
 		setIsCreating(true);
 		try {
 			const local = makeLocalStation({ name, eventLabel, location });
-			// Optimistic: QR updates immediately, then sync id if API succeeds.
 			persistLocal(local);
 
 			const response = await fetch("/api/stations", {
@@ -137,8 +136,7 @@ export function HostStation() {
 			setCopied(true);
 			window.setTimeout(() => setCopied(false), 1500);
 		} catch {
-			// fallback: select-friendly prompt
-			window.prompt("Copy this link", joinUrl);
+			window.prompt("Copie este link", joinUrl);
 		}
 	};
 
@@ -146,19 +144,19 @@ export function HostStation() {
 		<div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-10 px-4 py-10">
 			<div className="max-w-xl text-center">
 				<p className="text-xs tracking-[0.25em] text-muted-foreground uppercase">
-					Badge station
+					Estação de badge
 				</p>
 				<h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-					Scan to claim
+					Escaneie para receber
 				</h1>
 				<p className="mt-3 text-muted-foreground">
-					Put this QR on a screen at the entrance. Guests scan with their phone,
-					get a badge, customize it, and export an animated video.
+					Coloque este QR em uma tela na entrada. As pessoas escaneiam no
+					celular, recebem a badge, personalizam e exportam um vídeo animado.
 				</p>
 			</div>
 
 			{!hydrated || !station || !joinUrl ? (
-				<div className="text-sm text-muted-foreground">Loading station…</div>
+				<div className="text-sm text-muted-foreground">Carregando estação…</div>
 			) : (
 				<div className="flex w-full max-w-md flex-col items-center gap-6 rounded-[2rem] border border-white/10 bg-black/30 p-8 backdrop-blur-xl">
 					<div className="rounded-3xl bg-white p-4">
@@ -173,7 +171,7 @@ export function HostStation() {
 					<div className="grid w-full gap-3">
 						<div className="space-y-2 text-left">
 							<label className="text-sm font-medium" htmlFor="station-name">
-								Station name
+								Nome da estação
 							</label>
 							<Input
 								id="station-name"
@@ -183,7 +181,7 @@ export function HostStation() {
 						</div>
 						<div className="space-y-2 text-left">
 							<label className="text-sm font-medium" htmlFor="event-label">
-								Badge tag
+								Tag da badge
 							</label>
 							<Input
 								id="event-label"
@@ -193,7 +191,7 @@ export function HostStation() {
 						</div>
 						<div className="space-y-2 text-left">
 							<label className="text-sm font-medium" htmlFor="location">
-								Location
+								Local
 							</label>
 							<Input
 								id="location"
@@ -210,7 +208,7 @@ export function HostStation() {
 							className="flex-1"
 							onClick={() => void copyLink()}
 						>
-							{copied ? "Copied" : "Copy link"}
+							{copied ? "Copiado" : "Copiar link"}
 						</Button>
 						<Button
 							type="button"
@@ -218,14 +216,14 @@ export function HostStation() {
 							onClick={() => void createStation()}
 							disabled={isCreating}
 						>
-							{isCreating ? "Creating…" : "New station"}
+							{isCreating ? "Criando…" : "Nova estação"}
 						</Button>
 					</div>
 					<a
 						href={joinUrl}
 						className="text-sm text-primary underline-offset-4 hover:underline"
 					>
-						Open join link on this device
+						Abrir link de entrada neste aparelho
 					</a>
 				</div>
 			)}

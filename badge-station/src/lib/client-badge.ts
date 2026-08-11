@@ -3,15 +3,8 @@ import {
 	type BadgeBackgroundId,
 } from "@/components/badge-backgrounds/registry";
 import type { BadgeRecord } from "@/lib/badge-types";
+import { BRAND, formatActivatedAt } from "@/lib/branding";
 import { createBadgeId } from "@/lib/ids";
-
-function formatActivatedAt(date = new Date()): string {
-	return date.toLocaleDateString("en-US", {
-		month: "short",
-		day: "numeric",
-		year: "numeric",
-	});
-}
 
 export function createClientBadge(input: {
 	stationId: string;
@@ -24,9 +17,12 @@ export function createClientBadge(input: {
 	return {
 		id: createBadgeId(),
 		stationId: input.stationId.toUpperCase(),
-		name: input.name?.trim() || "Guest",
-		tags: [input.eventLabel?.trim() || "CAFE CURSOR", "EVENT"],
-		location: input.location?.trim() || "Curitiba, PR",
+		name: input.name?.trim() || BRAND.defaultGuestName,
+		tags: [
+			input.eventLabel?.trim() || BRAND.shortTag,
+			BRAND.eventTag,
+		],
+		location: input.location?.trim() || BRAND.defaultLocation,
 		activatedAt: formatActivatedAt(now),
 		backgroundId,
 		backgroundConfig: generateBackgroundConfig(backgroundId),

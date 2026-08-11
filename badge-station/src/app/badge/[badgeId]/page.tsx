@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { BadgeStudio } from "@/components/badge-studio";
 import { PageShell } from "@/components/page-shell";
 import type { BadgeRecord } from "@/lib/badge-types";
+import { BRAND } from "@/lib/branding";
 import { readStoredBadge, writeStoredBadge } from "@/lib/client-badge";
 
 export default function BadgePage() {
@@ -40,12 +41,13 @@ export default function BadgePage() {
 					return;
 				}
 
-				// Client-created badges live in localStorage; API 404 is expected on serverless.
 				if (!cancelled) {
 					if (cached) {
 						setLoading(false);
 					} else {
-						setError("Badge not found. Scan the event QR again to get a new one.");
+						setError(
+							"Badge não encontrada. Escaneie o QR do evento de novo para receber outra."
+						);
 						setLoading(false);
 					}
 				}
@@ -54,7 +56,7 @@ export default function BadgePage() {
 					if (cached) {
 						setLoading(false);
 					} else {
-						setError("Could not load badge.");
+						setError("Não foi possível carregar a badge.");
 						setLoading(false);
 					}
 				}
@@ -74,13 +76,13 @@ export default function BadgePage() {
 						href="/"
 						className="text-sm text-muted-foreground transition-colors hover:text-foreground"
 					>
-						Badge Station
+						{BRAND.namePt}
 					</Link>
 					<Link
 						href="/host"
 						className="inline-flex h-8 items-center rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
 					>
-						Host QR
+						QR da estação
 					</Link>
 				</div>
 
@@ -90,20 +92,20 @@ export default function BadgePage() {
 					<div className="mx-auto max-w-md rounded-[2rem] border border-white/10 bg-black/35 p-8 text-center backdrop-blur-xl">
 						<h1 className="text-2xl font-bold">
 							{error
-								? "Badge unavailable"
+								? "Badge indisponível"
 								: loading
-									? "Loading badge…"
-									: "Badge unavailable"}
+									? "Carregando badge…"
+									: "Badge indisponível"}
 						</h1>
 						<p className="mt-2 text-sm text-muted-foreground">
-							{error ?? "Fetching your assigned badge."}
+							{error ?? "Buscando a badge atribuída a você."}
 						</p>
 						{error ? (
 							<Link
 								href="/host"
 								className="mt-6 inline-flex h-10 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground"
 							>
-								Scan from host QR
+								Escanear QR da estação
 							</Link>
 						) : null}
 					</div>

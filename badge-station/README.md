@@ -1,19 +1,19 @@
-# Badge Station
+# Estação de Badge — Cursor Além do Código
 
-Standalone event badge service extracted from the Cafe Cursor badge card experience.
+Serviço standalone de badges do evento **Cursor Além do Código** (*Cursor Beyond Coding*).
 
-Guests scan a host QR code on their phone, get assigned an animated badge, set their name, reroll/customize styles, and export a shareable **WebM video** of the live animated badge.
+Convidados escaneiam o QR da estação no celular, recebem uma badge animada, definem o nome, personalizam o estilo e exportam um **vídeo WebM** da badge ao vivo.
 
-## Features
+## Recursos
 
-- **Host QR desk** (`/host`) — create a station and display a check-in QR
-- **Phone claim** (`/join/[stationId]`) — scan assigns a personal badge
-- **Badge studio** (`/badge/[badgeId]`) — name, style picker, reroll, shuffle colors
-- **Animated video export** — records the live shader badge via MediaRecorder
+- **Mesa com QR** (`/host`) — cria a estação e exibe o QR de check-in
+- **Atribuição no celular** (`/join/[stationId]`) — o scan gera uma badge pessoal
+- **Estúdio da badge** (`/badge/[badgeId]`) — nome, estilos, embaralhar cores
+- **Exportação de vídeo animado** — grava a badge com shaders via MediaRecorder
 
-Works without a database: badges persist in the guest’s browser (`localStorage`), with optional in-memory API sync when the server instance is warm.
+Funciona sem banco de dados: as badges ficam no navegador do convidado (`localStorage`), com sync opcional na API em memória quando a instância do servidor está aquecida.
 
-## Quick start
+## Início rápido
 
 ```bash
 cd badge-station
@@ -21,57 +21,57 @@ pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000/host](http://localhost:3000/host), create a station, then scan the QR (or open the join link) on a phone.
+Abra [http://localhost:3000/host](http://localhost:3000/host), confirme a estação e escaneie o QR (ou abra o link de entrada) no celular.
 
-## Deploy on Vercel
+## Deploy na Vercel
 
-### One-click (standalone Badge Station project)
+### Um clique (projeto separado Badge Station)
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fenzoenrico%2Fcursor-cafe-landing&root-directory=badge-station&project-name=badge-station&repository-name=badge-station)
 
-Or import the existing repo into a **new** Vercel project and set **Root Directory** to `badge-station` before deploying:
+Ou importe o repositório existente em um **novo** projeto Vercel e defina **Root Directory** como `badge-station` antes do deploy:
 
 https://vercel.com/new/import?s=https://github.com/enzoenrico/cursor-cafe-landing
 
-### Option A — same GitHub repo, separate project (recommended)
+### Opção A — mesmo repositório GitHub, projeto separado (recomendado)
 
-1. Create a **new** Vercel project from this repository (do not reuse the landing-site / `curitiba-cursor` project)
-2. In project settings, set **Root Directory** to `badge-station` **before the first deploy**
-3. Framework: Next.js (auto)
-4. Install/build commands can stay default (`pnpm install` / `pnpm run build`)
-5. Deploy
+1. Crie um **novo** projeto Vercel a partir deste repositório (não reutilize o projeto do site / `curitiba-cursor`)
+2. Nas configurações, defina **Root Directory** como `badge-station` **antes do primeiro deploy**
+3. Framework: Next.js (automático)
+4. Comandos de install/build podem ficar no padrão (`pnpm install` / `pnpm run build`)
+5. Faça o deploy
 
-If Root Directory is left empty, Vercel builds `cursor-cafe-landing` instead and the deploy will fail or ship the wrong app.
+Se Root Directory ficar vazio, a Vercel compila o site principal em vez deste app.
 
-Confirm in the build log that the package name is `badge-station@0.1.0`, not `cursor-cafe-landing`.
+Confirme no log de build que o pacote é `badge-station@0.1.0`, e não `cursor-cafe-landing`.
 
-### Option B — extract to its own repo
+### Opção B — extrair para um repositório próprio
 
 ```bash
-# from repo root
+# na raiz do repo
 git subtree split -P badge-station -b badge-station-main
-# create a new empty GitHub repo, then:
+# crie um repo vazio no GitHub e então:
 git push git@github.com:YOU/badge-station.git badge-station-main:main
 ```
 
-Then import that repo on Vercel as a normal Next.js app.
+Depois importe esse repo na Vercel como um app Next.js normal.
 
-No environment variables are required.
+Nenhuma variável de ambiente é necessária.
 
 ## Scripts
 
-| Command       | Description        |
-| ------------- | ------------------ |
-| `pnpm dev`    | Local development  |
-| `pnpm build`  | Production build   |
-| `pnpm start`  | Run production     |
-| `pnpm lint`   | ESLint             |
+| Comando       | Descrição              |
+| ------------- | ---------------------- |
+| `pnpm dev`    | Desenvolvimento local  |
+| `pnpm build`  | Build de produção      |
+| `pnpm start`  | Rodar produção         |
+| `pnpm lint`   | ESLint                 |
 
 ## Stack
 
 - Next.js App Router
 - React 19
 - Tailwind CSS v4
-- `@paper-design/shaders-react` animated badge backgrounds
-- `qrcode.react` host QR
-- `html-to-image` + `MediaRecorder` video export
+- Fundos animados `@paper-design/shaders-react`
+- QR com `qrcode.react`
+- Exportação de vídeo com `html-to-image` + `MediaRecorder`

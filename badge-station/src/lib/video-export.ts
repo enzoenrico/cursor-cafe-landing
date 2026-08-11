@@ -52,7 +52,7 @@ async function captureFrame(
 	composite.width = width;
 	composite.height = height;
 	const ctx = composite.getContext("2d");
-	if (!ctx) throw new Error("Could not create canvas context");
+	if (!ctx) throw new Error("Não foi possível criar o contexto do canvas");
 
 	// Opaque card back so transparent areas don't show checkerboard.
 	ctx.fillStyle = "#0a0a0a";
@@ -119,7 +119,7 @@ function drawTextFallback(
 	const name =
 		element.querySelector("[data-badge-name]")?.textContent?.trim() ||
 		element.querySelector(".font-bold")?.textContent?.trim() ||
-		"Guest";
+		"Convidado";
 	const tags = [...element.querySelectorAll("[data-slot='badge']")].map((n) =>
 		(n.textContent || "").trim()
 	);
@@ -152,8 +152,8 @@ function drawTextFallback(
 	const bottomY = height - pad * 3.2;
 	ctx.fillStyle = "rgba(255,255,255,0.65)";
 	ctx.font = `500 ${Math.round(10 * pixelRatio)}px system-ui, sans-serif`;
-	ctx.fillText(labels[0] || "LOCATION", pad, bottomY);
-	ctx.fillText(labels[1] || "ACTIVATED", width / 2, bottomY);
+	ctx.fillText(labels[0] || "LOCAL", pad, bottomY);
+	ctx.fillText(labels[1] || "ATIVADA EM", width / 2, bottomY);
 	ctx.fillStyle = "rgba(255,255,255,0.95)";
 	ctx.font = `600 ${Math.round(13 * pixelRatio)}px system-ui, sans-serif`;
 	ctx.fillText(values[0] || "", pad, bottomY + 16 * pixelRatio);
@@ -186,12 +186,12 @@ export async function recordBadgeVideo(
 	options: RecordBadgeVideoOptions = {}
 ): Promise<Blob> {
 	if (typeof MediaRecorder === "undefined") {
-		throw new Error("MediaRecorder is not available in this browser.");
+		throw new Error("MediaRecorder não está disponível neste navegador.");
 	}
 
 	const mimeType = pickMimeType();
 	if (!mimeType) {
-		throw new Error("This browser does not support WebM video recording.");
+		throw new Error("Este navegador não suporta gravação de vídeo WebM.");
 	}
 
 	const durationMs = options.durationMs ?? 2800;
@@ -205,7 +205,7 @@ export async function recordBadgeVideo(
 	canvas.width = first.width;
 	canvas.height = first.height;
 	const ctx = canvas.getContext("2d");
-	if (!ctx) throw new Error("Could not create canvas context");
+	if (!ctx) throw new Error("Não foi possível criar o contexto do canvas");
 
 	const stream = canvas.captureStream(fps);
 	const recorder = new MediaRecorder(stream, {
@@ -219,11 +219,11 @@ export async function recordBadgeVideo(
 	};
 
 	const stopped = new Promise<Blob>((resolve, reject) => {
-		recorder.onerror = () => reject(new Error("MediaRecorder failed"));
+		recorder.onerror = () => reject(new Error("Falha no MediaRecorder"));
 		recorder.onstop = () => {
 			const blob = new Blob(chunks, { type: mimeType });
 			if (blob.size < 1) {
-				reject(new Error("Recording produced an empty video."));
+				reject(new Error("A gravação gerou um vídeo vazio."));
 				return;
 			}
 			resolve(blob);

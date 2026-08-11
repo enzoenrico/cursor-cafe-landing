@@ -72,7 +72,7 @@ export function ExportVideoModal({
 			});
 
 			const target = badgeRef.current;
-			if (!target) throw new Error("Badge preview is not ready yet.");
+			if (!target) throw new Error("A prévia da badge ainda não está pronta.");
 
 			const blob = await recordBadgeVideo(target, {
 				durationMs: 2800,
@@ -89,7 +89,7 @@ export function ExportVideoModal({
 			setError(
 				err instanceof Error
 					? err.message
-					: "Video export failed in this browser. Try Chrome or Edge on desktop."
+					: "Falha ao exportar o vídeo neste navegador. Tente Chrome ou Edge no computador."
 			);
 		} finally {
 			recordingRef.current = false;
@@ -123,15 +123,15 @@ export function ExportVideoModal({
 			if (navigator.canShare?.({ files: [file] })) {
 				await navigator.share({
 					files: [file],
-					title: "My event badge",
-					text: "Check out my animated event badge!",
+					title: "Minha badge do evento",
+					text: "Olha minha badge animada do Cursor Além do Código!",
 				});
 				return;
 			}
 			downloadBlob(blob, `${fileName}.webm`);
 		} catch (err) {
 			console.error(err);
-			setError("Sharing was cancelled or is unavailable.");
+			setError("O compartilhamento foi cancelado ou não está disponível.");
 		}
 	};
 
@@ -153,11 +153,11 @@ export function ExportVideoModal({
 			<div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-border/50 bg-background p-6 shadow-2xl">
 				<div className="mb-4 space-y-1">
 					<h2 id="export-video-title" className="text-lg font-semibold">
-						Export animated badge
+						Exportar badge animada
 					</h2>
 					<p className="text-sm text-muted-foreground">
-						Records the full badge card — name, tags, location, activated date,
-						and the animated background — as a WebM you can share online.
+						Grava o card completo — nome, tags, local, data de ativação e o
+						fundo animado — em um WebM para compartilhar.
 					</p>
 				</div>
 
@@ -176,7 +176,7 @@ export function ExportVideoModal({
 							/>
 						</div>
 						<p className="text-center text-xs text-muted-foreground">
-							Capturing animation… {Math.round(progress * 100)}%
+							Capturando animação… {Math.round(progress * 100)}%
 						</p>
 					</div>
 				) : null}
@@ -204,10 +204,10 @@ export function ExportVideoModal({
 						disabled={isRecording}
 					>
 						{isRecording
-							? "Recording…"
+							? "Gravando…"
 							: previewUrl
-								? "Record again"
-								: "Record video"}
+								? "Gravar de novo"
+								: "Gravar vídeo"}
 					</Button>
 					<Button
 						type="button"
@@ -215,7 +215,7 @@ export function ExportVideoModal({
 						onClick={() => void shareVideo()}
 						disabled={!previewUrl || isRecording}
 					>
-						Share
+						Compartilhar
 					</Button>
 					<Button
 						type="button"
@@ -223,7 +223,7 @@ export function ExportVideoModal({
 						onClick={close}
 						disabled={isRecording}
 					>
-						Close
+						Fechar
 					</Button>
 				</div>
 			</div>
