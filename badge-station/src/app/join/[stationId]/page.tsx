@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import type { BadgeRecord } from "@/lib/badge-types";
 import {
@@ -108,16 +109,18 @@ function JoinStationInner() {
 
 export default function JoinStationPage() {
 	return (
-		<main className="bg-animated relative flex min-h-screen items-center justify-center px-6">
-			<Suspense
-				fallback={
-					<div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-black/35 p-8 text-center text-sm text-muted-foreground backdrop-blur-xl">
-						Claiming your badge…
-					</div>
-				}
-			>
-				<JoinStationInner />
-			</Suspense>
-		</main>
+		<PageShell className="flex min-h-screen items-center justify-center px-6">
+			<main className="flex w-full items-center justify-center">
+				<Suspense
+					fallback={
+						<div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-black/35 p-8 text-center text-sm text-muted-foreground backdrop-blur-xl">
+							Claiming your badge…
+						</div>
+					}
+				>
+					<JoinStationInner />
+				</Suspense>
+			</main>
+		</PageShell>
 	);
 }

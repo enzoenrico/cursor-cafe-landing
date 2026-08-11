@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { BadgeStudio } from "@/components/badge-studio";
-import { Button } from "@/components/ui/button";
+import { PageShell } from "@/components/page-shell";
 import type { BadgeRecord } from "@/lib/badge-types";
 import { readStoredBadge, writeStoredBadge } from "@/lib/client-badge";
 
@@ -67,36 +67,48 @@ export default function BadgePage() {
 	}, [badgeId]);
 
 	return (
-		<main className="bg-animated relative min-h-screen px-4 py-10 sm:px-6">
-			<div className="mb-8 flex items-center justify-between">
-				<Link
-					href="/"
-					className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-				>
-					Badge Station
-				</Link>
-				<Button asChild variant="ghost" size="sm">
-					<Link href="/host">Host QR</Link>
-				</Button>
-			</div>
-
-			{badge ? (
-				<BadgeStudio initialBadge={badge} />
-			) : (
-				<div className="mx-auto max-w-md rounded-[2rem] border border-white/10 bg-black/35 p-8 text-center backdrop-blur-xl">
-					<h1 className="text-2xl font-bold">
-						{error ? "Badge unavailable" : loading ? "Loading badge…" : "Badge unavailable"}
-					</h1>
-					<p className="mt-2 text-sm text-muted-foreground">
-						{error ?? "Fetching your assigned badge."}
-					</p>
-					{error ? (
-						<Button asChild className="mt-6">
-							<Link href="/host">Scan from host QR</Link>
-						</Button>
-					) : null}
+		<PageShell>
+			<main className="min-h-screen px-4 py-10 sm:px-6">
+				<div className="mb-8 flex items-center justify-between">
+					<Link
+						href="/"
+						className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+					>
+						Badge Station
+					</Link>
+					<Link
+						href="/host"
+						className="inline-flex h-8 items-center rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+					>
+						Host QR
+					</Link>
 				</div>
-			)}
-		</main>
+
+				{badge ? (
+					<BadgeStudio initialBadge={badge} />
+				) : (
+					<div className="mx-auto max-w-md rounded-[2rem] border border-white/10 bg-black/35 p-8 text-center backdrop-blur-xl">
+						<h1 className="text-2xl font-bold">
+							{error
+								? "Badge unavailable"
+								: loading
+									? "Loading badge…"
+									: "Badge unavailable"}
+						</h1>
+						<p className="mt-2 text-sm text-muted-foreground">
+							{error ?? "Fetching your assigned badge."}
+						</p>
+						{error ? (
+							<Link
+								href="/host"
+								className="mt-6 inline-flex h-10 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground"
+							>
+								Scan from host QR
+							</Link>
+						) : null}
+					</div>
+				)}
+			</main>
+		</PageShell>
 	);
 }
