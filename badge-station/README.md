@@ -25,12 +25,15 @@ Open [http://localhost:3000/host](http://localhost:3000/host), create a station,
 
 ## Deploy on Vercel
 
-### Option A — same GitHub repo, separate project
+### Option A — same GitHub repo, separate project (recommended)
 
-1. Create a new Vercel project from this repository
-2. Set **Root Directory** to `badge-station`
+1. Create a **new** Vercel project from this repository (do not reuse the landing-site project)
+2. In project settings, set **Root Directory** to `badge-station` **before the first deploy**
 3. Framework: Next.js (auto)
-4. Deploy
+4. Install/build commands can stay default (`pnpm install` / `pnpm run build`)
+5. Deploy
+
+If Root Directory is left empty, Vercel builds `cursor-cafe-landing` instead and the deploy will fail or ship the wrong app.
 
 ### Option B — extract to its own repo
 
