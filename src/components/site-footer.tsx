@@ -51,6 +51,12 @@ export function SiteFooter() {
 								<BadgeIcon className="size-4" />
 								Badge e certificado
 							</Link>
+							<Link
+								href="/raffle"
+								className="flex items-center gap-2 text-white/80 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-colors font-medium"
+							>
+								Sorteio Luma
+							</Link>
 							<a
 								href="https://cursor.com"
 								target="_blank"

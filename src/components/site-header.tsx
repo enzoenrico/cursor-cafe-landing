@@ -5,9 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BadgeIcon, HomeIcon } from "lucide-react";
+import { BadgeIcon, Dices, HomeIcon } from "lucide-react";
 
 
 function HeaderLink({
@@ -53,6 +52,10 @@ export function SiteHeader({ className }: { className?: string }) {
 					<HeaderLink href="/badge">
 						<BadgeIcon className="size-4" />
 						<p>Badge</p>
+					</HeaderLink>
+					<HeaderLink href="/raffle">
+						<Dices className="size-4" />
+						<p>Sorteio</p>
 					</HeaderLink>
 				</nav>
 			</div>

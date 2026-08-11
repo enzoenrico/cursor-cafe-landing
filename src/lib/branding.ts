@@ -10,4 +10,6 @@ export const BRAND = {
 	defaultGuestName: "Convidado",
 	eventDateLabel: "30 de janeiro de 2026",
 	activatedAtLabel: "30 de jan. de 2026",
+	lumaEventUrl: "https://luma.com/cursor-umd5",
+	lumaEventId: "evt-EWoOevOW0uG6LTM",
 } as const;
