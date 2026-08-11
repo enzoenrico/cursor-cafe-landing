@@ -4,13 +4,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BRAND } from "@/lib/branding";
-import type { RaffleGuest } from "@/lib/luma";
+import type { GuestQuestion, RaffleGuest } from "@/lib/luma";
 
 type GuestsResponse = {
 	eventId: string;
 	eventUrl: string;
 	count: number;
+	checkedInCount?: number;
+	questionsCount?: number;
 	guests: RaffleGuest[];
+	questions?: GuestQuestion[];
 	error?: string;
 };
 
@@ -61,6 +64,8 @@ export function RafflePanel() {
 	const [eventId, setEventId] = useState("");
 	const [eventUrl, setEventUrl] = useState("https://luma.com/cursor-umd5");
 	const [allGuests, setAllGuests] = useState<RaffleGuest[]>([]);
+	const [questions, setQuestions] = useState<GuestQuestion[]>([]);
+	const [checkedInCount, setCheckedInCount] = useState(0);
 	const [drawnIds, setDrawnIds] = useState<string[]>([]);
 	const [winners, setWinners] = useState<RaffleGuest[]>([]);
 	const [currentWinner, setCurrentWinner] = useState<RaffleGuest | null>(null);
@@ -68,7 +73,7 @@ export function RafflePanel() {
 
 	const remaining = useMemo(
 		() => allGuests.filter((guest) => !drawnIds.includes(guest.id)),
-		[allGuests, drawnIds]
+		[allGuests, drawnIds],
 	);
 
 	const hydrateFromStorage = useCallback((id: string) => {
@@ -90,6 +95,8 @@ export function RafflePanel() {
 			setEventId(data.eventId);
 			setEventUrl(data.eventUrl);
 			setAllGuests(data.guests);
+			setQuestions(data.questions ?? []);
+			setCheckedInCount(data.checkedInCount ?? 0);
 			hydrateFromStorage(data.eventId);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Erro ao carregar convidados");
@@ -169,8 +176,8 @@ export function RafflePanel() {
 					Sorteio
 				</h1>
 				<p className="mx-auto max-w-xl text-base text-muted-foreground sm:text-lg">
-					Sorteia uma pessoa check-in no evento Luma por vez e remove do
-					pote. Fonte:{" "}
+					Sorteia uma pessoa aprovada no evento Luma por vez e remove do pote.
+					Fonte:{" "}
 					<a
 						href={eventUrl}
 						target="_blank"
@@ -182,12 +189,18 @@ export function RafflePanel() {
 				</p>
 			</div>
 
-			<div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
+			<div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-4">
+				<div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-5 backdrop-blur-xl">
+					<div className="text-xs tracking-widest text-muted-foreground uppercase">
+						Aprovados
+					</div>
+					<div className="mt-2 text-3xl font-bold">{allGuests.length}</div>
+				</div>
 				<div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-5 backdrop-blur-xl">
 					<div className="text-xs tracking-widest text-muted-foreground uppercase">
 						Check-in
 					</div>
-					<div className="mt-2 text-3xl font-bold">{allGuests.length}</div>
+					<div className="mt-2 text-3xl font-bold">{checkedInCount}</div>
 				</div>
 				<div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-5 backdrop-blur-xl">
 					<div className="text-xs tracking-widest text-muted-foreground uppercase">
@@ -195,7 +208,7 @@ export function RafflePanel() {
 					</div>
 					<div className="mt-2 text-3xl font-bold">{remaining.length}</div>
 				</div>
-				<div className="col-span-2 rounded-2xl border border-white/10 bg-black/30 px-4 py-5 backdrop-blur-xl sm:col-span-1">
+				<div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-5 backdrop-blur-xl">
 					<div className="text-xs tracking-widest text-muted-foreground uppercase">
 						Sorteados
 					</div>
@@ -314,6 +327,58 @@ export function RafflePanel() {
 					</ol>
 				</div>
 			) : null}
+
+			<div className="w-full space-y-3 text-left">
+				<div className="flex items-end justify-between gap-3">
+					<div>
+						<h2 className="text-sm font-medium tracking-widest text-muted-foreground uppercase">
+							Perguntas ao time Cursor
+						</h2>
+						<p className="mt-1 text-sm text-muted-foreground">
+							Respostas de inscrição: “Tem alguma pergunta para o time Cursor?”
+						</p>
+					</div>
+					<div className="text-sm text-muted-foreground">
+						{questions.length}
+					</div>
+				</div>
+
+				{loading ? (
+					<p className="text-sm text-muted-foreground">Carregando perguntas…</p>
+				) : questions.length === 0 ? (
+					<p className="rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-muted-foreground">
+						Nenhuma pergunta enviada ainda.
+					</p>
+				) : (
+					<ul className="max-h-[28rem] space-y-3 overflow-y-auto pr-1">
+						{questions.map((item, index) => (
+							<li
+								key={`${item.guestId}-${item.questionId}-${index}`}
+								className="rounded-xl border border-white/10 bg-black/25 px-4 py-3"
+							>
+								<div className="flex items-start justify-between gap-3">
+									<div>
+										<div className="font-medium">{item.guestName}</div>
+										{item.guestEmail ? (
+											<div className="text-xs text-muted-foreground">
+												{item.guestEmail}
+											</div>
+										) : null}
+									</div>
+									{item.checkedInAt ? (
+										<span className="text-[10px] tracking-widest text-primary uppercase">
+											Check-in
+										</span>
+									) : null}
+								</div>
+								<p className="mt-3 text-sm leading-relaxed text-foreground/90">
+									{item.answer}
+								</p>
+							</li>
+						))}
+					</ul>
+				)}
+			</div>
 		</div>
 	);
 }
