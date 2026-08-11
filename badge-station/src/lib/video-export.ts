@@ -24,62 +24,163 @@ function pickMimeType(): string {
 	return "";
 }
 
+function isShaderNode(node: HTMLElement): boolean {
+	if (node instanceof HTMLCanvasElement) return true;
+	// Paper-design shader wrappers are aria-hidden absolute fills.
+	if (
+		node.getAttribute("aria-hidden") === "true" &&
+		node.querySelector("canvas")
+	) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Capture one frame of the full badge card:
+ * 1) animated shader canvases as the background
+ * 2) DOM chrome/text (name, tags, location, activated) composited on top
+ */
 async function captureFrame(
 	element: HTMLElement,
 	pixelRatio: number
 ): Promise<HTMLCanvasElement> {
-	// Prefer compositing live WebGL canvases when present (shader badges).
+	const rect = element.getBoundingClientRect();
+	const width = Math.max(1, Math.round(rect.width * pixelRatio));
+	const height = Math.max(1, Math.round(rect.height * pixelRatio));
+	const composite = document.createElement("canvas");
+	composite.width = width;
+	composite.height = height;
+	const ctx = composite.getContext("2d");
+	if (!ctx) throw new Error("Could not create canvas context");
+
+	// Opaque card back so transparent areas don't show checkerboard.
+	ctx.fillStyle = "#0a0a0a";
+	ctx.fillRect(0, 0, width, height);
+
 	const glCanvases = [
 		...element.querySelectorAll("canvas"),
 	] as HTMLCanvasElement[];
 
-	if (glCanvases.length > 0) {
-		const rect = element.getBoundingClientRect();
-		const width = Math.max(1, Math.round(rect.width * pixelRatio));
-		const height = Math.max(1, Math.round(rect.height * pixelRatio));
-		const composite = document.createElement("canvas");
-		composite.width = width;
-		composite.height = height;
-		const ctx = composite.getContext("2d");
-		if (!ctx) throw new Error("Could not create canvas context");
-
-		// Draw DOM snapshot first (text/chrome), then overlay live canvases.
+	// 1) Animated shader layer (behind the card chrome)
+	for (const source of glCanvases) {
+		const sourceRect = source.getBoundingClientRect();
+		if (sourceRect.width < 1 || sourceRect.height < 1) continue;
+		const x = (sourceRect.left - rect.left) * pixelRatio;
+		const y = (sourceRect.top - rect.top) * pixelRatio;
+		const w = Math.max(1, sourceRect.width * pixelRatio);
+		const h = Math.max(1, sourceRect.height * pixelRatio);
 		try {
-			const domFrame = await toCanvas(element, {
-				pixelRatio,
-				cacheBust: true,
-				quality: 1,
-			});
-			ctx.drawImage(domFrame, 0, 0, width, height);
+			ctx.drawImage(source, x, y, w, h);
 		} catch {
-			ctx.fillStyle = "#0a0a0a";
-			ctx.fillRect(0, 0, width, height);
+			// tainted / lost context — skip this canvas for the frame
 		}
-
-		for (const source of glCanvases) {
-			const sourceRect = source.getBoundingClientRect();
-			const x = (sourceRect.left - rect.left) * pixelRatio;
-			const y = (sourceRect.top - rect.top) * pixelRatio;
-			const w = sourceRect.width * pixelRatio;
-			const h = sourceRect.height * pixelRatio;
-			try {
-				ctx.drawImage(source, x, y, w, h);
-			} catch {
-				// tainted / zero-size canvas — ignore
-			}
-		}
-		return composite;
 	}
 
-	return toCanvas(element, {
-		pixelRatio,
-		cacheBust: true,
-		quality: 1,
-	});
+	// 2) Card chrome + text on top (name, tags, location, activated, punch, scrims)
+	//    Shader canvases are filtered out so they don't cover the overlay.
+	try {
+		const domFrame = await toCanvas(element, {
+			pixelRatio,
+			cacheBust: true,
+			quality: 1,
+			backgroundColor: null,
+			filter: (node) => {
+				if (!(node instanceof HTMLElement)) return true;
+				return !isShaderNode(node);
+			},
+			style: {
+				backgroundColor: "transparent",
+			},
+		});
+		ctx.drawImage(domFrame, 0, 0, width, height);
+	} catch (err) {
+		console.error("DOM badge overlay capture failed, drawing text fallback", err);
+		// Keep a readable scrim + text if DOM snapshot fails
+		const scrim = ctx.createLinearGradient(0, 0, 0, height);
+		scrim.addColorStop(0, "rgba(0,0,0,0.28)");
+		scrim.addColorStop(0.45, "rgba(0,0,0,0.18)");
+		scrim.addColorStop(1, "rgba(0,0,0,0.55)");
+		ctx.fillStyle = scrim;
+		ctx.fillRect(0, 0, width, height);
+		drawTextFallback(ctx, element, width, height, pixelRatio);
+	}
+
+	return composite;
+}
+
+/** Last-resort overlay if html-to-image fails on the card chrome. */
+function drawTextFallback(
+	ctx: CanvasRenderingContext2D,
+	element: HTMLElement,
+	width: number,
+	height: number,
+	pixelRatio: number
+) {
+	const name =
+		element.querySelector("[data-badge-name]")?.textContent?.trim() ||
+		element.querySelector(".font-bold")?.textContent?.trim() ||
+		"Guest";
+	const tags = [...element.querySelectorAll("[data-slot='badge']")].map((n) =>
+		(n.textContent || "").trim()
+	);
+	const labels = [...element.querySelectorAll(".tracking-widest")].map((n) =>
+		(n.textContent || "").trim()
+	);
+	const values = [...element.querySelectorAll(".text-sm.font-medium")].map((n) =>
+		(n.textContent || "").trim()
+	);
+
+	const pad = 24 * pixelRatio;
+	ctx.fillStyle = "#ffffff";
+	ctx.font = `700 ${Math.round(36 * pixelRatio)}px system-ui, sans-serif`;
+	ctx.textBaseline = "top";
+	ctx.fillText(name, pad, pad * 2.2, width - pad * 2);
+
+	ctx.font = `600 ${Math.round(12 * pixelRatio)}px system-ui, sans-serif`;
+	let tagX = pad;
+	const tagY = pad * 4.2;
+	for (const tag of tags.slice(0, 2)) {
+		const tw = ctx.measureText(tag).width + 16 * pixelRatio;
+		ctx.fillStyle = "rgba(255,255,255,0.12)";
+		roundRect(ctx, tagX, tagY, tw, 22 * pixelRatio, 999);
+		ctx.fill();
+		ctx.fillStyle = "rgba(255,255,255,0.9)";
+		ctx.fillText(tag, tagX + 8 * pixelRatio, tagY + 5 * pixelRatio);
+		tagX += tw + 8 * pixelRatio;
+	}
+
+	const bottomY = height - pad * 3.2;
+	ctx.fillStyle = "rgba(255,255,255,0.65)";
+	ctx.font = `500 ${Math.round(10 * pixelRatio)}px system-ui, sans-serif`;
+	ctx.fillText(labels[0] || "LOCATION", pad, bottomY);
+	ctx.fillText(labels[1] || "ACTIVATED", width / 2, bottomY);
+	ctx.fillStyle = "rgba(255,255,255,0.95)";
+	ctx.font = `600 ${Math.round(13 * pixelRatio)}px system-ui, sans-serif`;
+	ctx.fillText(values[0] || "", pad, bottomY + 16 * pixelRatio);
+	ctx.fillText(values[1] || "", width / 2, bottomY + 16 * pixelRatio);
+}
+
+function roundRect(
+	ctx: CanvasRenderingContext2D,
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+	r: number
+) {
+	const radius = Math.min(r, w / 2, h / 2);
+	ctx.beginPath();
+	ctx.moveTo(x + radius, y);
+	ctx.arcTo(x + w, y, x + w, y + h, radius);
+	ctx.arcTo(x + w, y + h, x, y + h, radius);
+	ctx.arcTo(x, y + h, x, y, radius);
+	ctx.arcTo(x, y, x + w, y, radius);
+	ctx.closePath();
 }
 
 /**
- * Records the live badge DOM (including animated shader canvases) into a WebM video.
+ * Records the live badge DOM (full card + animated shader canvases) into a WebM video.
  */
 export async function recordBadgeVideo(
 	element: HTMLElement,

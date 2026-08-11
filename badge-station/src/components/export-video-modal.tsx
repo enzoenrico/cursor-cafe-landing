@@ -156,8 +156,8 @@ export function ExportVideoModal({
 						Export animated badge
 					</h2>
 					<p className="text-sm text-muted-foreground">
-						Recording a few seconds of your live badge — shaders included — as a
-						WebM you can share online.
+						Records the full badge card — name, tags, location, activated date,
+						and the animated background — as a WebM you can share online.
 					</p>
 				</div>
 
