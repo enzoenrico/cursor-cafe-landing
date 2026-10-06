@@ -26,11 +26,19 @@ import {
 
 type Guest = {
 	name: string;
-	first_name: string;
-	last_name: string;
+	firstName: string;
 	email: string;
-	api_id: string;
 };
+
+function isGuestLookup(
+	value: unknown,
+): value is { firstName: string; name: string } {
+	if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+	const record = value as Record<string, unknown>;
+	const keys = Object.keys(record);
+	if (keys.some((key) => key !== "firstName" && key !== "name")) return false;
+	return typeof record.firstName === "string" && typeof record.name === "string";
+}
 
 export default function CreditosPage() {
 	const [email, setEmail] = useState("");
@@ -93,7 +101,7 @@ export default function CreditosPage() {
 
 	// Badge configuration - shared between display and share modal
 	const badgeConfig = {
-		name: guest?.first_name || guest?.name || "Convidado",
+		name: guest?.firstName || guest?.name || "Convidado",
 		tags: ["CAFE CURSOR", "CURITIBA"] as const,
 		location: "Curitiba, PR",
 		activatedAt: "Jan 27, 2026",
@@ -178,43 +186,33 @@ export default function CreditosPage() {
 												setIsLoading(true);
 
 												try {
-													const response = await fetch("/api/guests");
-													if (!response.ok) throw new Error("Failed to fetch");
-													const csvText = await response.text();
+													const response = await fetch("/api/guests", {
+														method: "POST",
+														headers: { "Content-Type": "application/json" },
+														body: JSON.stringify({ email }),
+														cache: "no-store",
+													});
 
-													const lines = csvText.split("\n");
-													const headers = lines[0].split(",");
-
-													const emailIndex = headers.indexOf("email");
-													const nameIndex = headers.indexOf("name");
-													const firstNameIndex = headers.indexOf("first_name");
-													const lastNameIndex = headers.indexOf("last_name");
-													const apiIdIndex = headers.indexOf("api_id");
-
-													const normalizedEmail = email.toLowerCase().trim();
-
-													for (let i = 1; i < lines.length; i++) {
-														const line = lines[i];
-														if (!line.trim()) continue;
-
-														const values = line.split(",");
-														const rowEmail = values[emailIndex]?.toLowerCase().trim();
-
-														if (rowEmail === normalizedEmail) {
-															setGuest({
-																name: values[nameIndex] || "",
-																first_name: values[firstNameIndex] || "",
-																last_name: values[lastNameIndex] || "",
-																email: values[emailIndex] || "",
-																api_id: values[apiIdIndex] || "",
-															});
-															setSubmitted(true);
-															setIsLoading(false);
-															return;
-														}
+													if (response.status === 404) {
+														setError("Email não confirmado no evento.");
+														return;
 													}
 
-													setError("Email não confirmado no evento.");
+													if (!response.ok) {
+														throw new Error("Failed to fetch");
+													}
+
+													const data: unknown = await response.json();
+													if (!isGuestLookup(data)) {
+														throw new Error("Unexpected response");
+													}
+
+													setGuest({
+														name: data.name,
+														firstName: data.firstName,
+														email: email.trim(),
+													});
+													setSubmitted(true);
 												} catch (err) {
 													setError("Erro ao verificar e-mail. Tente novamente.");
 													console.error(err);
@@ -270,7 +268,7 @@ export default function CreditosPage() {
 				<CertificateModal
 					open={isCertificateModalOpen}
 					onOpenChange={setIsCertificateModalOpen}
-					guestName={guest.name || `${guest.first_name} ${guest.last_name}`.trim()}
+					guestName={guest.name || guest.firstName}
 					guestEmail={guest.email}
 				/>
 			)}

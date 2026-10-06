@@ -18,6 +18,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Guest data
+
+`GUESTS_CSV` is attendee data and must never be served unauthenticated. The badge page confirms one submitted email on the server and receives only that person's display name. Do not add a public route, file, or response that returns the guest list, email addresses, or the raw file.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
